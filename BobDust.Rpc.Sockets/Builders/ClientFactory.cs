@@ -3,7 +3,7 @@ using System.Reflection;
 using BobDust.Core.Extensions.Reflection.Emit;
 using System.Collections.Concurrent;
 
-namespace BobDust.Rpc.Sockets
+namespace BobDust.Rpc.Sockets.Builders
 {
 	public class ClientFactory
 	{

@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Threading;
 using BobDust.Core.ExceptionHandling;
+using BobDust.Rpc.Sockets.Abstractions;
 
 namespace BobDust.Rpc.Sockets
 {

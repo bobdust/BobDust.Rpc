@@ -8,10 +8,12 @@ using System.Collections.Concurrent;
 using BobDust.Core.ExceptionHandling;
 using System.Linq.Expressions;
 using System.Reflection;
+using BobDust.Rpc.Sockets.Abstractions;
+using BobDust.Rpc.Sockets.Serialization;
 
 namespace BobDust.Rpc.Sockets
 {
-	public abstract class Server<TExecutor> : ExceptionHandler
+	public abstract class Server<TExecutor> : ExceptionHandler, IServer<TExecutor> where TExecutor : class
 	{
 		private TcpListener _listener;
 		private Runnable _listenTask;

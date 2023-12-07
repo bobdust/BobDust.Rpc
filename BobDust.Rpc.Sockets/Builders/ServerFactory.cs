@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Linq;
 using BobDust.Core.Extensions.Reflection.Emit;
 using System.Collections.Concurrent;
+using BobDust.Rpc.Sockets.Abstractions;
 
-namespace BobDust.Rpc.Sockets
+namespace BobDust.Rpc.Sockets.Builders
 {
 	public class ServerFactory
 	{
@@ -18,16 +18,16 @@ namespace BobDust.Rpc.Sockets
 			_objects = new ConcurrentDictionary<(int Port, Type ExecutorType), object>();
 		}
 
-		public Server<TExecutor> Get<TExecutor>(int port)
+		public IServer<TExecutor> Get<TExecutor>(int port) where TExecutor : class
 		{
 			var executorType = typeof(TExecutor);
 			var key = (port, executorType);
-			var server = default(Server<TExecutor>);
+			var server = default(IServer<TExecutor>);
 			lock(_objects)
 			{
 				if (_objects.ContainsKey(key))
 				{
-					 server = (Server<TExecutor>)_objects[key];
+					 server = (IServer<TExecutor>)_objects[key];
 				}
 				else
 				{
@@ -42,12 +42,12 @@ namespace BobDust.Rpc.Sockets
 			throw new NotSupportedException();
 		}
 
-		private Server<TExecutor> BuildServer<TExecutor>(int port, Type executorType)
+		private IServer<TExecutor> BuildServer<TExecutor>(int port, Type executorType) where TExecutor : class
 		{
 			Func<TExecutor> factory = () => (TExecutor)Activator.CreateInstance(executorType);
 			var baseType = typeof(Server<>).MakeGenericType(executorType);
 			var type = baseType.Extend(executorType.Name);
-			return (Server<TExecutor>)type.GetConstructor(new[] { typeof(int), typeof(Func<TExecutor>) }).Invoke(new object[] { port, factory });
+			return (IServer<TExecutor>)type.GetConstructor(new[] { typeof(int), typeof(Func<TExecutor>) }).Invoke(new object[] { port, factory });
 		}
 
 	}

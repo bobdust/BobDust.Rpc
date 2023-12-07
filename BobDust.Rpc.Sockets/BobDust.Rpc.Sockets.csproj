@@ -12,6 +12,7 @@
     <TargetFrameworkVersion>v4.8.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,29 +47,35 @@
     </Compile>
     <Compile Include="BinarySequence.cs" />
     <Compile Include="Client.cs" />
-    <Compile Include="ClientFactory.cs" />
+    <Compile Include="Builders\ClientFactory.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandPipeline.cs" />
     <Compile Include="CommandResult.cs" />
-    <Compile Include="IBinarySequence.cs" />
-    <Compile Include="ICommand.cs" />
-    <Compile Include="ICommandResult.cs" />
-    <Compile Include="IPipeline.cs" />
     <Compile Include="Package.cs" />
     <Compile Include="Pipeline.cs" />
     <Compile Include="PipelineDecorator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
-    <Compile Include="ServerFactory.cs" />
+    <Compile Include="Builders\ServerFactory.cs" />
     <Compile Include="SocketPipeline.cs" />
-    <Compile Include="XmlCommand.cs" />
-    <Compile Include="XmlCommandResult.cs" />
+    <Compile Include="Serialization\XmlCommand.cs" />
+    <Compile Include="Serialization\XmlCommandResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BobDust.Core\BobDust.Core.csproj">
       <Project>{65be3bef-6556-4220-934f-09cdb6facb91}</Project>
       <Name>BobDust.Core</Name>
     </ProjectReference>
+    <ProjectReference Include="..\BobDust.Rpc.Sockets.Abstractions\BobDust.Rpc.Sockets.Abstractions.csproj">
+      <Project>{6b17f6b4-e8b0-45ce-9531-7bcb2951edf8}</Project>
+      <Name>BobDust.Rpc.Sockets.Abstractions</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Link>README.md</Link>
+    </None>
+    <None Include="BobDust.Rpc.Sockets.nuspec" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

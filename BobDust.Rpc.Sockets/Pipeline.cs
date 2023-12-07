@@ -4,6 +4,7 @@ using BobDust.Core.Threading;
 using System.IO;
 using System.Collections.Concurrent;
 using BobDust.Core.ExceptionHandling;
+using BobDust.Rpc.Sockets.Abstractions;
 
 namespace BobDust.Rpc.Sockets
 {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BobDust.Rpc.Sockets.Builders;
+using System;
 
 namespace BobDust.Rpc.Sockets.HelloWorld
 {
