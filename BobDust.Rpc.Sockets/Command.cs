@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace BobDust.Rpc.Sockets
 {
-	public abstract class Command : BinarySequence
+	abstract class Command : BinarySequence
 	{
 		public string OperationName
 		{

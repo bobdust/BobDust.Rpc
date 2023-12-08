@@ -2,7 +2,7 @@
 
 namespace BobDust.Rpc.Sockets
 {
-	public abstract class PipelineDecorator : Pipeline
+	abstract class PipelineDecorator : Pipeline
 	{
 		private IPipeline _pipeline;
 

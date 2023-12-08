@@ -11,12 +11,22 @@ namespace BobDust.Rpc.Sockets
 {
 	public abstract class Client : ExceptionHandler, IDisposable
 	{
-		private TcpClient _client;
-		private CommandPipeline _pipeline;
+		private readonly Func<string, ICommand> _commandFactory;
+		private readonly Func<byte[], ICommandResult> _commandResultFactory;
+		private readonly TcpClient _client;
+		private readonly CommandPipeline _pipeline;
 		public bool IsDisposed { get; private set; }
 
-		protected Client(string host, int port)
+		protected Client(
+			string host, 
+			int port, 
+			Func<string, ICommand> commandFactory, 
+			Func<byte[], ICommandResult> commandResultFactory
+		)
 		{
+			_commandFactory = commandFactory;
+			_commandResultFactory = commandResultFactory;
+
 			_client = new TcpClient();
 			var serverEndpoint = new IPEndPoint(IPAddress.Parse(host), port);
 			_client.Connect(serverEndpoint);
@@ -43,7 +53,7 @@ namespace BobDust.Rpc.Sockets
 			var methodInfo = stackTrace.GetFrame(1).GetMethod();
 			const string pattern = @"((?<interface>\w+).)?(?<methodName>\w+)";
 			var methodName = Regex.Match(methodInfo.Name, pattern).Groups["methodName"].Value;
-			var command = new XmlCommand(methodName);
+			var command = _commandFactory(methodName);
 			var parameters = methodInfo.GetParameters();
 			for (var i = 0; i < parameters.Length; i++)
 			{
@@ -62,13 +72,9 @@ namespace BobDust.Rpc.Sockets
 			return null;
 		}
 
-		protected void Subscribe(Action action)
-		{
-		}
-
 		protected ICommandResult Deserialize(byte[] bytes)
 		{
-			return BinarySequence.FromBytes<XmlCommandResult>(bytes);
+			return _commandResultFactory(bytes);
 		}
 
 		public void Dispose()

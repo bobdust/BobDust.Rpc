@@ -2,7 +2,7 @@
 
 namespace BobDust.Rpc.Sockets
 {
-	public abstract class CommandResult : BinarySequence
+	abstract class CommandResult : BinarySequence
 	{
 		public object ReturnValue
 		{

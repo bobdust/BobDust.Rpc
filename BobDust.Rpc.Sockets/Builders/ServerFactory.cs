@@ -2,6 +2,7 @@
 using BobDust.Core.Extensions.Reflection.Emit;
 using System.Collections.Concurrent;
 using BobDust.Rpc.Sockets.Abstractions;
+using BobDust.Rpc.Sockets.Serialization;
 
 namespace BobDust.Rpc.Sockets.Builders
 {
@@ -47,8 +48,15 @@ namespace BobDust.Rpc.Sockets.Builders
 			Func<TExecutor> factory = () => (TExecutor)Activator.CreateInstance(executorType);
 			var baseType = typeof(Server<>).MakeGenericType(executorType);
 			var type = baseType.Extend(executorType.Name);
-			return (IServer<TExecutor>)type.GetConstructor(new[] { typeof(int), typeof(Func<TExecutor>) }).Invoke(new object[] { port, factory });
+			Func<byte[], ICommand> commandFactory = BuildCommand;
+			return (IServer<TExecutor>)type
+				.GetConstructor(new[] { typeof(int), typeof(Func<TExecutor>), typeof(Func<byte[], ICommand>) })
+				.Invoke(new object[] { port, factory, commandFactory });
 		}
 
+		private ICommand BuildCommand(byte[] bytes)
+		{
+			return BinarySequence.FromBytes<BinaryCommand>(bytes);
+		}
 	}
 }

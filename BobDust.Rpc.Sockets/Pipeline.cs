@@ -8,7 +8,7 @@ using BobDust.Rpc.Sockets.Abstractions;
 
 namespace BobDust.Rpc.Sockets
 {
-	public abstract class Pipeline : ExceptionHandler, IPipeline
+	abstract class Pipeline : ExceptionHandler, IPipeline
 	{
 		protected const int BufferSize = 8192;
 

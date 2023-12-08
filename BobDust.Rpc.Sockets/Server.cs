@@ -15,13 +15,14 @@ namespace BobDust.Rpc.Sockets
 {
 	public abstract class Server<TExecutor> : ExceptionHandler, IServer<TExecutor> where TExecutor : class
 	{
-		private TcpListener _listener;
-		private Runnable _listenTask;
-		private ConcurrentBag<IPipeline> _pipelines;
-		private AutoResetEvent _waitHandle;
+		private readonly TcpListener _listener;
+		private readonly Runnable _listenTask;
+		private readonly ConcurrentBag<IPipeline> _pipelines;
+		private readonly AutoResetEvent _waitHandle;
 		private bool _isStopped;
-		private ConcurrentDictionary<string, TExecutor> _executors;
-		private Func<TExecutor> _factory;
+		private readonly ConcurrentDictionary<string, TExecutor> _executors;
+		private readonly Func<TExecutor> _factory;
+		private readonly Func<byte[], ICommand> _commandFactory;
 
 		protected Server(int port)
 		{
@@ -32,10 +33,11 @@ namespace BobDust.Rpc.Sockets
 			_executors = new ConcurrentDictionary<string, TExecutor>();
 		}
 
-		protected Server(int port, Func<TExecutor> factory)
+		protected Server(int port, Func<TExecutor> factory, Func<byte[], ICommand> commandFactory)
 		   : this(port)
 		{
 			_factory = factory;
+			_commandFactory = commandFactory;
 		}
 
 		public void Start()
@@ -147,7 +149,7 @@ namespace BobDust.Rpc.Sockets
 
 		protected ICommand Deserialize(byte[] bytes)
 		{
-			return BinarySequence.FromBytes<XmlCommand>(bytes);
+			return _commandFactory(bytes);
 		}
 
 	}

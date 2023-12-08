@@ -138,7 +138,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
                return _types[typeName];
             }
          }
-         var typeBuilder = module.DefineType(typeName, TypeAttributes.Public, baseType);
+         var typeBuilder = module.DefineType(typeName, TypeAttributes.NotPublic, baseType);
          typeBuilder.CreatePassThroughConstuctors(baseType);
          build(typeBuilder);
          var type = typeBuilder.CreateType();

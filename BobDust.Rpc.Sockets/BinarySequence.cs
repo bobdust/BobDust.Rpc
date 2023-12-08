@@ -1,9 +1,11 @@
 ﻿using BobDust.Rpc.Sockets.Abstractions;
+using System;
 using System.IO;
 
 namespace BobDust.Rpc.Sockets
 {
-	public abstract class BinarySequence
+	[Serializable]
+	abstract class BinarySequence
 	{
 
 		public static T FromBytes<T>(byte[] bytes)

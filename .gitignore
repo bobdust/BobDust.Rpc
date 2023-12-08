@@ -1,4 +1,6 @@
 /.vs
 bin
 obj
-/BobDust.Core/*.user
+/**/*.user
+/**/*.nupkg
+/packages

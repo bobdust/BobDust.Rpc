@@ -2,6 +2,8 @@
 using System.Reflection;
 using BobDust.Core.Extensions.Reflection.Emit;
 using System.Collections.Concurrent;
+using BobDust.Rpc.Sockets.Serialization;
+using BobDust.Rpc.Sockets.Abstractions;
 
 namespace BobDust.Rpc.Sockets.Builders
 {
@@ -50,10 +52,12 @@ namespace BobDust.Rpc.Sockets.Builders
 			{
 				return invoke;
 			});
-			var constructor = type.GetConstructor(new[] { typeof(string), typeof(int) });
+			var constructor = type.GetConstructor(new[] { typeof(string), typeof(int), typeof(Func<string, ICommand>), typeof(Func<byte[], ICommandResult>) });
 			try
 			{
-				instance = (T)constructor.Invoke(new object[] { host, port });
+				Func<string, ICommand> commandFactory = BuildCommand;
+				Func<byte[], ICommandResult> commandResultFactory = BuildCommandResult;
+				instance = (T)constructor.Invoke(new object[] { host, port, commandFactory, commandResultFactory });
 				_objects[key] = instance;
 				return instance;
 			}
@@ -63,6 +67,15 @@ namespace BobDust.Rpc.Sockets.Builders
 			}
 		}
 
+		private ICommandResult BuildCommandResult(byte[] bytes)
+		{
+			return BinarySequence.FromBytes<BinaryCommandResult>(bytes);
+		}
+
+		private ICommand BuildCommand(string method)
+		{
+			return new BinaryCommand(method) as ICommand;
+		}
 	}
 
 }

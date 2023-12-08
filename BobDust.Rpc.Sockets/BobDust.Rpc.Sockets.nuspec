@@ -10,15 +10,15 @@
     <!-- <icon>icon.png</icon> -->
     <projectUrl>https://github.com/bobdust/BobDust.Rpc</projectUrl>
     <description>$description$</description>
-    <releaseNotes>1st publish to nuget.</releaseNotes>
+    <releaseNotes>Binary serialization.</releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>BobDust Rpc</tags>
 	<dependencies>
-      <dependency id="BobDust.Core" version="0.9.1" />
-	  <dependency id="BobDust.Rpc.Sockets.Abstractions" version="0.9.1" />
+      <dependency id="BobDust.Core" version="$version$" />
+	  <dependency id="BobDust.Rpc.Sockets.Abstractions" version="$version$" />
 	</dependencies>
 	  <readme>docs\README.md</readme>
-	  <repository type="git" url="https://github.com/bobdust/BobDust.Rpct"/>
+	  <repository type="git" url="https://github.com/bobdust/BobDust.Rpc"/>
   </metadata>
   <files>
 	  <file src="..\README.md" target="docs\" />
