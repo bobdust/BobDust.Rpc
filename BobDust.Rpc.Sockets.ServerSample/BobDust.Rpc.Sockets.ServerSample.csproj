@@ -33,6 +33,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BobDust.Core, Version=0.9.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BobDust.Core.0.9.3\lib\net481\BobDust.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="BobDust.Rpc.Sockets, Version=0.9.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BobDust.Rpc.Sockets.0.9.3\lib\net481\BobDust.Rpc.Sockets.dll</HintPath>
+    </Reference>
+    <Reference Include="BobDust.Rpc.Sockets.Abstractions, Version=0.9.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\BobDust.Rpc.Sockets.Abstractions.0.9.3\lib\net481\BobDust.Rpc.Sockets.Abstractions.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -55,17 +64,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BobDust.Rpc.Sockets.Abstractions\BobDust.Rpc.Sockets.Abstractions.csproj">
-      <Project>{6b17f6b4-e8b0-45ce-9531-7bcb2951edf8}</Project>
-      <Name>BobDust.Rpc.Sockets.Abstractions</Name>
-    </ProjectReference>
     <ProjectReference Include="..\BobDust.Rpc.Sockets.HelloWorld\BobDust.Rpc.Sockets.HelloWorld.csproj">
       <Project>{7f085e88-758a-4fc2-81f7-bab6ae17bccc}</Project>
       <Name>BobDust.Rpc.Sockets.HelloWorld</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\BobDust.Rpc.Sockets\BobDust.Rpc.Sockets.csproj">
-      <Project>{fc7563c3-d657-4392-81c3-d72a0303aa96}</Project>
-      <Name>BobDust.Rpc.Sockets</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
