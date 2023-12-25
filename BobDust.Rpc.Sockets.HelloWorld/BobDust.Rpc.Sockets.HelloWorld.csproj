@@ -54,5 +54,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BobDust.Rpc.Sockets\BobDust.Rpc.Sockets.csproj">
+      <Project>{fc7563c3-d657-4392-81c3-d72a0303aa96}</Project>
+      <Name>BobDust.Rpc.Sockets</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
