@@ -4,6 +4,7 @@ using System.Xml;
 using System.IO;
 using BobDust.Core.Extensions;
 using BobDust.Rpc.Sockets.Abstractions;
+using System.Collections.Generic;
 
 namespace BobDust.Rpc.Sockets.Serialization
 {
@@ -21,9 +22,10 @@ namespace BobDust.Rpc.Sockets.Serialization
 		{
 		}
 
-		public XmlCommand(string operationName)
+		public XmlCommand(string operationName, IEnumerable<(string Name, object Value)> parameters)
 		   : base(operationName)
 		{
+			Parameters = parameters;
 		}
 
 		public override void Write(System.IO.BinaryWriter writer)
@@ -33,12 +35,13 @@ namespace BobDust.Rpc.Sockets.Serialization
 			using (var xmlWriter = XmlWriter.Create(builder, settings))
 			{
 				xmlWriter.WriteStartElement(OperationName);
-				foreach (var name in Parameters.Keys)
+				foreach (var parameter in Parameters)
 				{
+					var name = parameter.Name;
 					xmlWriter.WriteStartElement(XmlNames.Parameter);
 					xmlWriter.WriteAttributeString(XmlNames.Name, name);
-					var parameter = Parameters[name];
-					xmlWriter.Write(parameter);
+					var value = parameter.Value;
+					xmlWriter.Write(value);
 					xmlWriter.WriteEndElement();
 				}
 				xmlWriter.WriteEndElement();
@@ -55,14 +58,16 @@ namespace BobDust.Rpc.Sockets.Serialization
 				{
 					xmlReader.Read();
 					OperationName = xmlReader.Name;
+					var paramList = new List<(string Name, object Value)>();
 					while (xmlReader.ReadToFollowing(XmlNames.Parameter))
 					{
 						var name = xmlReader.GetAttribute(XmlNames.Name);
 						var type = Type.GetType(xmlReader.GetAttribute(XmlNames.Type));
 						xmlReader.Read();
 						var obj = xmlReader.Read(type);
-						Parameters[name] = obj;
+						paramList.Add((name, obj));
 					}
+					Parameters = paramList;
 				}
 			}
 		}

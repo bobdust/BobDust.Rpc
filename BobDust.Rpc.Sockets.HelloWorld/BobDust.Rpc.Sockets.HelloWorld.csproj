@@ -33,15 +33,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="BobDust.Core, Version=0.9.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\BobDust.Core.0.9.2\lib\net481\BobDust.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="BobDust.Rpc.Sockets, Version=0.9.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\BobDust.Rpc.Sockets.0.9.2\lib\net481\BobDust.Rpc.Sockets.dll</HintPath>
-    </Reference>
-    <Reference Include="BobDust.Rpc.Sockets.Abstractions, Version=0.9.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\BobDust.Rpc.Sockets.Abstractions.0.9.2\lib\net481\BobDust.Rpc.Sockets.Abstractions.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -55,13 +46,13 @@
     <Compile Include="..\BobDust.AssemblyInfo.cs">
       <Link>Properties\BobDust.AssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="GreetingOptions.cs" />
     <Compile Include="IGreetingAssistant.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

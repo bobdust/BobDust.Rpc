@@ -9,7 +9,7 @@ using BobDust.Core.ExceptionHandling;
 using System.Linq.Expressions;
 using System.Reflection;
 using BobDust.Rpc.Sockets.Abstractions;
-using BobDust.Rpc.Sockets.Serialization;
+using System.Collections.Generic;
 
 namespace BobDust.Rpc.Sockets
 {
@@ -109,21 +109,20 @@ namespace BobDust.Rpc.Sockets
 						_executors[key] = executor;
 					}
 				}
-				var method = executor.GetType().GetMethod(command.OperationName);
+				var typeArgs = command.Parameters.Select(p => p.Value.GetType());
+				var method = executor.GetType().GetMethod(command.OperationName, typeArgs.ToArray());
 				Type delegateType;
-				var typeArgs = method.GetParameters().Select(p => p.ParameterType).ToList();
 				if (method.ReturnType == typeof(void))
 				{
 					delegateType = Expression.GetActionType(typeArgs.ToArray());
 				}
 				else
 				{
-					typeArgs.Add(method.ReturnType);
-					delegateType = Expression.GetFuncType(typeArgs.ToArray());
+					delegateType = Expression.GetFuncType(typeArgs.Concat(new[] { method.ReturnType }).ToArray());
 				}
 				var objDelegate = Delegate.CreateDelegate(delegateType, executor, method);
 				object returnValue;
-				returnValue = objDelegate.DynamicInvoke(command.Parameters.Values.ToArray());
+				returnValue = objDelegate.DynamicInvoke(command.Parameters.Select(p => p.Value).ToArray());
 				if (method.ReturnType == typeof(void))
 				{
 					result = command.Return();

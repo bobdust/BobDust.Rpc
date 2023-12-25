@@ -48,7 +48,6 @@
     <Compile Include="BinarySequence.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Builders\ClientFactory.cs" />
-    <Compile Include="ClientEndpointSettings.cs" />
     <Compile Include="Command.cs" />
     <Compile Include="CommandPipeline.cs" />
     <Compile Include="CommandResult.cs" />

@@ -1,9 +1,4 @@
 ﻿using BobDust.Rpc.Sockets.HelloWorld;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BobDust.Rpc.Sockets.ServerSample
 {
@@ -12,6 +7,16 @@ namespace BobDust.Rpc.Sockets.ServerSample
 		public string Hello()
 		{
 			return "Hello, world!";
+		}
+
+		public string Hello(GreetingOptions options)
+		{
+			return $"Hello, {options?.Name}";
+		}
+
+		public string Hello(GreetingOptions options, string greetingFollowup)
+		{
+			return $"Hello, {options?.Name}. {greetingFollowup}!";
 		}
 	}
 }

@@ -10,7 +10,7 @@
     <!-- <icon>icon.png</icon> -->
     <projectUrl>https://github.com/bobdust/BobDust.Rpc</projectUrl>
     <description>$description$</description>
-    <releaseNotes>Binary serialization.</releaseNotes>
+    <releaseNotes>Improvement on calling GetMethod in Server.</releaseNotes>
     <copyright>$copyright$</copyright>
     <tags>BobDust Rpc</tags>
 	<readme>docs\README.md</readme>

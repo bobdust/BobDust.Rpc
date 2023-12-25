@@ -5,13 +5,14 @@ using BobDust.Core.ExceptionHandling;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using BobDust.Rpc.Sockets.Abstractions;
-using BobDust.Rpc.Sockets.Serialization;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace BobDust.Rpc.Sockets
 {
 	public abstract class Client : ExceptionHandler, IDisposable
 	{
-		private readonly Func<string, ICommand> _commandFactory;
+		private readonly Func<string, IEnumerable<(string, object)>, ICommand> _commandFactory;
 		private readonly Func<byte[], ICommandResult> _commandResultFactory;
 		private readonly TcpClient _client;
 		private readonly CommandPipeline _pipeline;
@@ -20,7 +21,7 @@ namespace BobDust.Rpc.Sockets
 		protected Client(
 			string host, 
 			int port, 
-			Func<string, ICommand> commandFactory, 
+			Func<string, IEnumerable<(string, object)>, ICommand> commandFactory, 
 			Func<byte[], ICommandResult> commandResultFactory
 		)
 		{
@@ -53,13 +54,8 @@ namespace BobDust.Rpc.Sockets
 			var methodInfo = stackTrace.GetFrame(1).GetMethod();
 			const string pattern = @"((?<interface>\w+).)?(?<methodName>\w+)";
 			var methodName = Regex.Match(methodInfo.Name, pattern).Groups["methodName"].Value;
-			var command = _commandFactory(methodName);
 			var parameters = methodInfo.GetParameters();
-			for (var i = 0; i < parameters.Length; i++)
-			{
-				var parameter = parameters[i];
-				command.Parameters[parameter.Name] = values[i];
-			}
+			var command = _commandFactory(methodName, parameters.Select((p, i) => (p.Name, values[i])).ToArray());
 			var result = Send(command);
 			if (result.ReturnValue != null)
 			{

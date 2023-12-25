@@ -1,6 +1,7 @@
 ﻿using BobDust.Rpc.Sockets.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BobDust.Rpc.Sockets
 {
@@ -12,15 +13,15 @@ namespace BobDust.Rpc.Sockets
 			protected set;
 		}
 
-		public IDictionary<string, object> Parameters
+		public IEnumerable<(string Name, object Value)> Parameters
 		{
 			get;
-			private set;
+			protected set;
 		}
 
 		public Command()
 		{
-			Parameters = new Dictionary<string, object>();
+			Parameters = Enumerable.Empty<(string Name, object Value)> ();
 		}
 
 		public Command(string operationName)

@@ -1,23 +1,24 @@
 ﻿using BobDust.Rpc.Sockets.Abstractions;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace BobDust.Rpc.Sockets.Serialization
 {
 	[Serializable]
 	class BinaryCommand : BinaryCommandBase, ICommand
 	{
-		public BinaryCommand() : base() { 
-			Parameters = new Dictionary<string, object>();
+		public BinaryCommand() : base() {
+			Parameters = Enumerable.Empty<(string Name, object Value)>();
 		}
 
 		public BinaryCommand(string operationName)
 		   : base(operationName)
 		{
-			Parameters = new Dictionary<string, object>();
+			Parameters = Enumerable.Empty<(string Name, object Value)>();
 		}
 
-		public BinaryCommand(string operationName, IDictionary<string, object> parameters) : this(operationName)
+		public BinaryCommand(string operationName, IEnumerable<(string Name, object Value)> parameters) : this(operationName)
 		{
 			Parameters = parameters;
 		}
@@ -29,7 +30,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 			Parameters = command.Parameters;
 		}
 
-		public IDictionary<string, object> Parameters { get; private set; }
+		public IEnumerable<(string, object)> Parameters { get; private set; }
 
 		public ICommandResult Return()
 		{
