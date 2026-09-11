@@ -1,15 +1,11 @@
-﻿using System;
-using System.Linq;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
 using System.Net;
-using System.Threading;
 using BobDust.Core.Threading;
 using System.Collections.Concurrent;
 using BobDust.Core.ExceptionHandling;
 using System.Linq.Expressions;
 using System.Reflection;
 using BobDust.Rpc.Sockets.Abstractions;
-using System.Collections.Generic;
 
 namespace BobDust.Rpc.Sockets
 {
@@ -59,25 +55,18 @@ namespace BobDust.Rpc.Sockets
 			_waitHandle.Set();
 		}
 
-		private void Listen()
+		private async Task Listen()
 		{
-			_listener.BeginAcceptTcpClient(delegate (IAsyncResult asyncResult)
-			{
-				if (_isStopped)
-				{
-					return;
-				}
-				var client = _listener.EndAcceptTcpClient(asyncResult);
-				var sendSocket = _listener.AcceptSocket();
-				var receiveSocket = client.Client;
-				var pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize);
-				pipeline.OnReceived = Execute;
-				pipeline.OnException = Handle;
-				pipeline.Open();
-				_pipelines.Add(pipeline);
-				_waitHandle.Set();
-			}, null);
-			_waitHandle.WaitOne();
+			var client = await _listener.AcceptTcpClientAsync();
+			var sendSocket = _listener.AcceptSocket();
+			var receiveSocket = client.Client;
+			var pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize);
+			pipeline.OnReceived = Execute;
+			pipeline.OnException = Handle;
+			pipeline.Open();
+			_pipelines.Add(pipeline);
+			// _waitHandle.Set();
+			// _waitHandle.WaitOne();
 		}
 
 		protected virtual TExecutor GetExecutor()

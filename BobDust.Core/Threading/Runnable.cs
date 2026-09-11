@@ -1,21 +1,17 @@
-﻿using System;
-using System.Threading;
-using BobDust.Core.ExceptionHandling;
+﻿using BobDust.Core.ExceptionHandling;
 
 namespace BobDust.Core.Threading
 {
 	public class Runnable : ExceptionHandler
 	{
-		//private Thread _thread;
-		private Action _handler;
+		private Func<Task> _handler;
 		private object _lock;
 		private ThreadState _state;
 
-		public Runnable(Action handler)
+		public Runnable(Func<Task> handler)
 		{
 			_lock = new object();
 			_handler = handler;
-			//_thread = new Thread(new ThreadStart(Run));
 		}
 
 		public void Start()
@@ -24,22 +20,17 @@ namespace BobDust.Core.Threading
 			{
 				_state = ThreadState.Running;
 			}
-			//_thread.Start();
-			Action run = Run;
-			run.BeginInvoke((asyncResult) =>
-			{
-				run.EndInvoke(asyncResult);
-			}, null);
+			Task.Run(Run);
 		}
 
-		private void Run()
+		private async Task Run()
 		{
 			try
 			{
 				var state = _state;
 				while (state == ThreadState.Running)
 				{
-					_handler();
+					await _handler();
 					lock (_lock)
 					{
 						state = _state;

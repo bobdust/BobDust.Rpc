@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-using BobDust.Core.Threading;
-using System.IO;
+﻿using BobDust.Core.Threading;
 using System.Collections.Concurrent;
 using BobDust.Core.ExceptionHandling;
 using BobDust.Rpc.Sockets.Abstractions;
@@ -24,24 +21,20 @@ namespace BobDust.Rpc.Sockets
 			Id = Guid.NewGuid().ToString();
 
 			_receivingQueues = new ConcurrentDictionary<Guid, ConcurrentQueue<Package>>();
-			_receivingTask = new Runnable(delegate ()
+			_receivingTask = new Runnable(async () =>
 			{
 				var buffer = new byte[BufferSize];
 				var bytesRead = Read(buffer);
 				if (bytesRead > 0)
 				{
 					buffer = buffer.Take(bytesRead).ToArray();
-					Action<Package> packageReceived = PackageReceived;
-					packageReceived.BeginInvoke(buffer, (asyncResult) =>
-					{
-						packageReceived.EndInvoke(asyncResult);
-					}, null);
+					await PackageReceived(buffer);
 				}
 			});
 			_receivingTask.OnException = Handle;
 		}
 
-		private void PackageReceived(Package package)
+		private async Task PackageReceived(Package package)
 		{
 			var token = package.Token;
 			lock (_receivingQueues)

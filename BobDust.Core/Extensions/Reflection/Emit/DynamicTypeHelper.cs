@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Emit;
+﻿using System.Reflection.Emit;
 using System.Reflection;
 using System.Dynamic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Collections.ObjectModel;
 
 namespace BobDust.Core.Extensions.Reflection.Emit
 {
@@ -46,12 +44,12 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          AssemblyBuilder assemblyBuilder;
          if (string.IsNullOrEmpty(dir))
          {
-            assemblyBuilder = domain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
             assemblyBuilder.DisableDebugOptimization();
             _assemblies[name] = assemblyBuilder;
             return assemblyBuilder;
          }
-         assemblyBuilder = domain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndSave, dir);
+         assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
          assemblyBuilder.DisableDebugOptimization();
          dynamic wrapper = new ExpandoObject();
          wrapper.Builder = assemblyBuilder;
@@ -84,7 +82,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
                   return _modules[moduleName];
                }
             }
-            module = builder.DefineDynamicModule(moduleName, fileName);
+            module = builder.DefineDynamicModule(moduleName);
             _modules[moduleName] = module;
             return module;
          }
@@ -144,7 +142,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          var type = typeBuilder.CreateType();
          if (!string.IsNullOrEmpty(fileName))
          {
-            assemblyBuilder.Save(fileName);
+            // assemblyBuilder.Save(fileName);
          }
          _types[typeName] = type;
          return type;
@@ -297,7 +295,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
       {
          return customAttributes.Select(attribute =>
          {
-            var attributeArgs = attribute.ConstructorArguments.Select(a => a.Value).ToArray();
+            var attributeArgs = attribute.ConstructorArguments.Select(a => a.Value is ReadOnlyCollection<CustomAttributeTypedArgument> customAttributeTypedArguments ? customAttributeTypedArguments.Select(arg => arg.Value).ToArray() : a.Value).ToArray();
             var namedPropertyInfos = attribute.NamedArguments.Select(a => a.MemberInfo).OfType<PropertyInfo>().ToArray();
             var namedPropertyValues = attribute.NamedArguments.Where(a => a.MemberInfo is PropertyInfo).Select(a => a.TypedValue.Value).ToArray();
             var namedFieldInfos = attribute.NamedArguments.Select(a => a.MemberInfo).OfType<FieldInfo>().ToArray();
