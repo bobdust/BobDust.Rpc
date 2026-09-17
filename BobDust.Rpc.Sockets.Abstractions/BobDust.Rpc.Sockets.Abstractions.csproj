@@ -1,23 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageId>BobDust.Rpc.Sockets.Abstractions</PackageId>
-    <Version>0.10.0</Version>
-    <Authors>BobDust</Authors>
-    <Company>BobDust</Company>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\BobDust.Core\BobDust.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

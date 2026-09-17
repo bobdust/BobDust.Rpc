@@ -55,18 +55,18 @@ namespace BobDust.Rpc.Sockets
 			_waitHandle.Set();
 		}
 
-		private async Task Listen()
+		private async Task Listen(CancellationToken cancellationToken)
 		{
-			var client = await _listener.AcceptTcpClientAsync();
+			var client = await _listener.AcceptTcpClientAsync(cancellationToken);
 			var sendSocket = _listener.AcceptSocket();
 			var receiveSocket = client.Client;
-			var pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize);
-			pipeline.OnReceived = Execute;
-			pipeline.OnException = Handle;
-			pipeline.Open();
+            var pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize)
+            {
+                OnReceived = Execute,
+                OnException = Handle
+            };
+            pipeline.Open();
 			_pipelines.Add(pipeline);
-			// _waitHandle.Set();
-			// _waitHandle.WaitOne();
 		}
 
 		protected virtual TExecutor GetExecutor()
@@ -75,7 +75,8 @@ namespace BobDust.Rpc.Sockets
 			{
 				return _factory();
 			}
-			return default(TExecutor);
+
+			throw new NotSupportedException("No factory provided for executor creation.");
 		}
 
 		protected void Execute(IPipeline source, IBinarySequence data)
@@ -101,20 +102,34 @@ namespace BobDust.Rpc.Sockets
 				var typeArgs = command.Parameters.Select(p => p.Value.GetType());
 				var method = executor.GetType().GetMethod(command.OperationName, typeArgs.ToArray());
 				Type delegateType;
-				if (method.ReturnType == typeof(void))
+				var returnType = method?.ReturnType!;
+				if (returnType == typeof(void))
 				{
 					delegateType = Expression.GetActionType(typeArgs.ToArray());
 				}
 				else
 				{
-					delegateType = Expression.GetFuncType(typeArgs.Concat(new[] { method.ReturnType }).ToArray());
+					delegateType = Expression.GetFuncType(typeArgs.Concat(new[] { returnType }).ToArray());
 				}
-				var objDelegate = Delegate.CreateDelegate(delegateType, executor, method);
-				object returnValue;
-				returnValue = objDelegate.DynamicInvoke(command.Parameters.Select(p => p.Value).ToArray());
-				if (method.ReturnType == typeof(void))
+				var objDelegate = Delegate.CreateDelegate(delegateType, executor, method!);
+				object? returnValue = objDelegate.DynamicInvoke(command.Parameters.Select(p => p.Value).ToArray());
+				if (returnType == typeof(void))
 				{
 					result = command.Return();
+				}
+				else if (returnType == typeof(Task))
+				{
+					var task = (Task)returnValue;
+					task.Wait();
+					result = command.Return();
+				}
+				else if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+				{
+					var task = (Task)returnValue;
+					task.Wait();
+					var resultProperty = task.GetType().GetProperty("Result");
+					var taskResult = resultProperty?.GetValue(task);
+					result = command.Return(taskResult);
 				}
 				else
 				{

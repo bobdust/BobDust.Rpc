@@ -31,12 +31,14 @@ namespace BobDust.Rpc.Sockets
 			var sendSocket = _client.Client;
 			var receiveSocket = new Socket(sendSocket.AddressFamily, sendSocket.SocketType, sendSocket.ProtocolType);
 			receiveSocket.Connect(sendSocket.RemoteEndPoint);
-			_pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize);
-			_pipeline.OnException = (ex, source) =>
-			{
-				Dispose();
-			};
-			_pipeline.Open();
+            _pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize)
+            {
+                OnException = (ex, source) =>
+                {
+                    Dispose();
+                }
+            };
+            _pipeline.Open();
 		}
 
 		protected ICommandResult Send(ICommand command)
@@ -45,15 +47,49 @@ namespace BobDust.Rpc.Sockets
 			return (ICommandResult)result;
 		}
 
-		protected object Invoke(params object[] values)
+		protected async Task<ICommandResult> SendAsync(ICommand command)
+		{
+			var result = await _pipeline.PostAsync(command);
+			return (ICommandResult)result;
+		}
+
+		protected object? Invoke(params object[] values)
 		{
 			var stackTrace = new StackTrace();
-			var methodInfo = stackTrace.GetFrame(1).GetMethod();
+			var methodInfo = stackTrace.GetFrame(1)?.GetMethod();
+			if (methodInfo == null)
+			{
+				throw new InvalidOperationException("Unable to retrieve method information from the call stack.");
+			}
 			const string pattern = @"((?<interface>\w+).)?(?<methodName>\w+)";
 			var methodName = Regex.Match(methodInfo.Name, pattern).Groups["methodName"].Value;
 			var parameters = methodInfo.GetParameters();
-			var command = _commandFactory(methodName, parameters.Select((p, i) => (p.Name, values[i])).ToArray());
+			var command = _commandFactory(methodName, parameters.Select((p, i) => (p.Name!, values[i])).ToArray());
 			var result = Send(command);
+			if (result.ReturnValue != null)
+			{
+				return result.ReturnValue;
+			}
+			else if (result.Exception != null)
+			{
+				Handle(result.Exception, this);
+			}
+			return null;
+		}
+
+		protected async Task<object?> InvokeAsync(params object[] values)
+		{
+			var stackTrace = new StackTrace();
+			var methodInfo = stackTrace.GetFrame(3)?.GetMethod();
+			if (methodInfo == null)
+			{
+				throw new InvalidOperationException("Unable to retrieve method information from the call stack.");
+			}
+			const string pattern = @"((?<interface>\w+).)?(?<methodName>\w+)";
+			var methodName = Regex.Match(methodInfo.Name, pattern).Groups["methodName"].Value;
+			var parameters = methodInfo.GetParameters();
+			var command = _commandFactory(methodName, parameters.Select((p, i) => (p.Name!, values[i])).ToArray());
+			var result = await SendAsync(command);
 			if (result.ReturnValue != null)
 			{
 				return result.ReturnValue;

@@ -1,10 +1,8 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using BobDust.Core.Extensions.Reflection.Emit;
 using System.Collections.Concurrent;
 using BobDust.Rpc.Sockets.Serialization;
 using BobDust.Rpc.Sockets.Abstractions;
-using System.Collections.Generic;
 
 namespace BobDust.Rpc.Sockets.Builders
 {
@@ -24,16 +22,15 @@ namespace BobDust.Rpc.Sockets.Builders
 		public T Get<T>(string host, int port)
 		{
 			var key = string.Format("{0}", typeof(T).FullName);
-			T instance = default(T);
+			T? instance = default;
 			lock (_objects)
 			{
 				if (_objects.ContainsKey(key))
 				{
 					var client = _objects[key] as Client;
-					if (client.IsDisposed)
+					if (client?.IsDisposed == true)
 					{
-						object value;
-						_objects.TryRemove(key, out value);
+						_objects.TryRemove(key, out var _);
 					}
 					else
 					{
@@ -49,11 +46,13 @@ namespace BobDust.Rpc.Sockets.Builders
 			var contractType = typeof(T);
 			var baseType = typeof(Client);
 			var invoke = baseType.GetMethod("Invoke", BindingFlags.Instance | BindingFlags.NonPublic);
-			var type = baseType.Implement(contractType, (method) =>
+			var invokeAsync = baseType.GetMethod("InvokeAsync", BindingFlags.Instance | BindingFlags.NonPublic);
+			var type = baseType.Implement(contractType, (method) => method.IsAsync() ? invokeAsync! : invoke!);
+			var constructor = type.GetConstructor([typeof(string), typeof(int), typeof(Func<string, IEnumerable<(string Name, object Value)>, ICommand>), typeof(Func<byte[], ICommandResult>)]);
+			if (constructor == null)
 			{
-				return invoke;
-			});
-			var constructor = type.GetConstructor(new[] { typeof(string), typeof(int), typeof(Func<string, IEnumerable<(string Name, object Value)>, ICommand>), typeof(Func<byte[], ICommandResult>) });
+				throw new InvalidOperationException($"Constructor not found for type {type.FullName}");
+			}
 			try
 			{
 				Func<string, IEnumerable<(string Name, object Value)>, ICommand> commandFactory = BuildCommand;
@@ -64,7 +63,7 @@ namespace BobDust.Rpc.Sockets.Builders
 			}
 			catch (Exception ex)
 			{
-				throw (ex.InnerException);
+				throw ex is { InnerException: {} inner } ? inner : ex;
 			}
 		}
 

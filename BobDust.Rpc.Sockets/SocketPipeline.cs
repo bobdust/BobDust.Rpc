@@ -87,5 +87,14 @@ namespace BobDust.Rpc.Sockets
          base.Handle(ex, source);
       }
 
-   }
+        public override async Task WriteAsync(byte[] buffer, CancellationToken cancellationToken)
+        {
+            await _sendSocket.SendAsync(buffer, SocketFlags.None, cancellationToken);
+        }
+
+        public override async Task<int> ReadAsync(byte[] buffer, CancellationToken cancellationToken)
+        {
+            return await _receiveSocket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken);
+        }
+    }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using BobDust.Rpc.Sockets.Abstractions;
 
 namespace BobDust.Rpc.Sockets
@@ -32,9 +30,18 @@ namespace BobDust.Rpc.Sockets
 			var context = ChannelContext.Get(token);
 			if (context == null)
 			{
-				using (context = ChannelContext.New(token))
+				var asyncContext = AsyncContext.Get(token);
+				if (asyncContext != null)
 				{
-					base.DataReceived(token);
+					asyncContext.WaitHandle.Set();
+					//asyncContext.WaitHandle.Release();
+				}
+				else // server-side pipeline
+				{
+					using (_ = ChannelContext.New(token))
+					{
+						base.DataReceived(token);
+					}
 				}
 			}
 			else
@@ -58,28 +65,20 @@ namespace BobDust.Rpc.Sockets
 			}
 		}
 
-		public void Post(IBinarySequence request, Action<IBinarySequence> responseReceived)
+		public async Task<IBinarySequence> PostAsync(IBinarySequence request)
 		{
-			Func<IBinarySequence> action = () =>
+			await using (var context = AsyncContext.New())
 			{
-				using (var context = ChannelContext.New())
+				await SendAsync(request, context.Token, context.CancellationToken);
+				context.WaitHandle.WaitOne(MillisecondsTimeout);
+				var response = Receive(context.Token);
+				if (response == null)
 				{
-					Send(request);
-					context.WaitHandle.WaitOne();
-					var response = Receive(context.Token);
-					return response;
+					throw new TimeoutException();
 				}
-			};
-			action.BeginInvoke((asynResult) =>
-			{
-				var response = action.EndInvoke(asynResult);
-				if (response != null)
-				{
-					responseReceived(response);
-				}
-			}, null);
+				return response;
+			}
 		}
-
 
 		class ChannelContext : IDisposable
 		{
@@ -105,6 +104,10 @@ namespace BobDust.Rpc.Sockets
 				{
 					var threadId = Thread.CurrentThread.ManagedThreadId;
 					var context = AppDomain.CurrentDomain.GetData(threadId.ToString());
+					if (context == null)
+					{
+						throw new InvalidOperationException("No channel context is associated with the current thread.");
+					}
 					return (ChannelContext)context;
 				}
 				private set
@@ -113,7 +116,7 @@ namespace BobDust.Rpc.Sockets
 				}
 			}
 
-			public static ChannelContext Get(Guid token)
+			public static ChannelContext? Get(Guid token)
 			{
 				if (_contexts.ContainsKey(token))
 				{
@@ -139,9 +142,59 @@ namespace BobDust.Rpc.Sockets
 			{
 				WaitHandle.Set();
 				WaitHandle.Dispose();
-				ChannelContext context;
-				_contexts.TryRemove(Token, out context);
+				_contexts.TryRemove(Token, out var _);
 			}
 		}
+		class AsyncContext : IAsyncDisposable
+		{
+			private static ConcurrentDictionary<Guid, AsyncContext> _contexts;
+
+			static AsyncContext()
+			{
+				_contexts = new ConcurrentDictionary<Guid, AsyncContext>();
+			}
+
+			private AsyncContext(Guid token)
+			{
+				Token = token;
+				WaitHandle = new AutoResetEvent(false);
+				//WaitHandle = new SemaphoreSlim(0, 1);
+				CancellationToken = new CancellationToken();
+			}
+
+			public Guid Token { get; private set; }
+			public AutoResetEvent WaitHandle { get; private set; }
+			//public SemaphoreSlim WaitHandle { get; private set; }
+			public CancellationToken CancellationToken { get; private set; }
+
+			public static AsyncContext? Get(Guid token)
+			{
+				if (_contexts.ContainsKey(token))
+				{
+					return _contexts[token];
+				}
+				return null;
+			}
+
+			public static AsyncContext New()
+			{
+				return New(Guid.NewGuid());
+			}
+
+			public static AsyncContext New(Guid token)
+			{
+				var context = new AsyncContext(token);
+				_contexts[token] = context;
+				return context;
+			}
+
+            public async ValueTask DisposeAsync()
+            {
+				WaitHandle.Set();
+				//WaitHandle.Release();
+				WaitHandle.Dispose();
+				_contexts.TryRemove(Token, out var _);
+			}
+        }
 	}
 }

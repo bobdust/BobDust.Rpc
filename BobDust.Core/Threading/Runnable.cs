@@ -4,14 +4,16 @@ namespace BobDust.Core.Threading
 {
 	public class Runnable : ExceptionHandler
 	{
-		private Func<Task> _handler;
+		private Func<CancellationToken, Task> _handler;
 		private object _lock;
 		private ThreadState _state;
+		private CancellationTokenSource _cancellationTokenSource;
 
-		public Runnable(Func<Task> handler)
+		public Runnable(Func<CancellationToken, Task> handler)
 		{
 			_lock = new object();
 			_handler = handler;
+			_cancellationTokenSource = new CancellationTokenSource();
 		}
 
 		public void Start()
@@ -28,9 +30,10 @@ namespace BobDust.Core.Threading
 			try
 			{
 				var state = _state;
-				while (state == ThreadState.Running)
+				var cancellationToken = _cancellationTokenSource.Token;
+				while (state == ThreadState.Running && !cancellationToken.IsCancellationRequested)
 				{
-					await _handler();
+					await _handler(cancellationToken);
 					lock (_lock)
 					{
 						state = _state;
@@ -49,6 +52,7 @@ namespace BobDust.Core.Threading
 			{
 				_state = ThreadState.Stopped;
 			}
+			_cancellationTokenSource.Cancel();
 		}
 
 	}

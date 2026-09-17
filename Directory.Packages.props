@@ -4,8 +4,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageVersion Include="BobDust.Core" Version="0.10.0" />
-        <PackageVersion Include="BobDust.Rpc.Sockets" Version="0.10.0" />
-        <PackageVersion Include="BobDust.Rpc.Sockets.Abstractions" Version="0.10.0" />
+        <PackageVersion Include="System.Reflection.Emit" Version="4.3.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageVersion Include="BobDust.Core" Version="0.10.1" />
+        <PackageVersion Include="BobDust.Rpc.Sockets" Version="0.10.1" />
+        <PackageVersion Include="BobDust.Rpc.Sockets.Abstractions" Version="0.10.1" />
     </ItemGroup>
 </Project>

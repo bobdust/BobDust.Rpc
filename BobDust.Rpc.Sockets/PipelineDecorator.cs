@@ -16,6 +16,16 @@ namespace BobDust.Rpc.Sockets
 			_pipeline.Write(buffer);
 		}
 
+		public override async Task WriteAsync(byte[] buffer, CancellationToken cancellationToken)
+		{
+			await _pipeline.WriteAsync(buffer, cancellationToken);
+		}
+
+		public override async Task<int> ReadAsync(byte[] buffer, CancellationToken cancellationToken)
+		{
+			return await _pipeline.ReadAsync(buffer, cancellationToken);
+		}
+
 		public override int Read(byte[] buffer)
 		{
 			return _pipeline.Read(buffer);

@@ -2,7 +2,7 @@
 
 
 * Quick summary: RPC socket library and samples to use it.
-* Version: 0.10.0.
+* Version: 0.10.1.
 
 * Refer to BobDust.Rpc.Sockets.HelloWorld and BobDust.Rpc.Sockets.ServerSample for the samples.
 * Dependencies: .NET 8, System.Reflection.Emit.

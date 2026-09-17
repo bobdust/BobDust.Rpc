@@ -1,24 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <PackageId>BobDust.Core</PackageId>
-    <Version>0.10.0</Version>
-    <Authors>BobDust</Authors>
-    <Company>BobDust</Company>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Reflection.Emit" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <PackageReference Include="System.Reflection.Emit" />
   </ItemGroup>
 
 </Project>
