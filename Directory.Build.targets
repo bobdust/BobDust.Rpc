@@ -1,0 +1,6 @@
+<Project>
+  <!-- This runs automatically during the 'pack' process -->
+  <PropertyGroup Condition="'$(IsPackable)' != 'false'">
+    <NuspecProperties>id=$(PackageId);version=$(Version);title=$(PackageId);authors=$(Authors);description=$(Description);copyright=$(Copyright)</NuspecProperties>
+  </PropertyGroup>
+</Project>
