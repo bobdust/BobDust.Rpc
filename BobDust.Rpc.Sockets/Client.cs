@@ -4,6 +4,7 @@ using BobDust.Core.ExceptionHandling;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using BobDust.Rpc.Sockets.Abstractions;
+using System.Runtime.CompilerServices;
 
 namespace BobDust.Rpc.Sockets
 {
@@ -77,16 +78,17 @@ namespace BobDust.Rpc.Sockets
 			return null;
 		}
 
-		protected async Task<object?> InvokeAsync(params object[] values)
+		private async Task<object?> InvokeAsyncInternal(string methodName, object[] values)
 		{
 			var stackTrace = new StackTrace();
-			var methodInfo = stackTrace.GetFrame(3)?.GetMethod();
+			const string pattern = @"((?<interface>\w+).)?(?<methodName>\w+)";
+			var methodInfo = stackTrace.GetFrames()
+       							.Select(frame => frame.GetMethod())
+       							.FirstOrDefault(item => Regex.Match(item.Name, pattern).Groups["methodName"].Value == methodName);
 			if (methodInfo == null)
 			{
 				throw new InvalidOperationException("Unable to retrieve method information from the call stack.");
 			}
-			const string pattern = @"((?<interface>\w+).)?(?<methodName>\w+)";
-			var methodName = Regex.Match(methodInfo.Name, pattern).Groups["methodName"].Value;
 			var parameters = methodInfo.GetParameters();
 			var command = _commandFactory(methodName, parameters.Select((p, i) => (p.Name!, values[i])).ToArray());
 			var result = await SendAsync(command);
@@ -99,6 +101,12 @@ namespace BobDust.Rpc.Sockets
 				Handle(result.Exception, this);
 			}
 			return null;
+		}
+
+		protected async Task<T?> InvokeAsync<T>(object[] values, [CallerMemberName] string caller = "")
+		{
+			var result = await InvokeAsyncInternal(caller, values);
+			return result is T typedResult ? typedResult : default;
 		}
 
 		protected ICommandResult Deserialize(byte[] bytes)

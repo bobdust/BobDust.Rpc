@@ -21,5 +21,6 @@
   </metadata>
   <files>
     <file src="README.md" target="docs\" />
+    <file src="bin\Release\net8.0\*.dll" target="lib/net8.0/" />
   </files>
 </package>

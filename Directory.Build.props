@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <Version>0.10.2</Version>
+        <Version>0.10.3</Version>
         <Authors>BobDust</Authors>
         <Company>BobDust</Company>
         <Copyright>Copyright ©BobDust 2012</Copyright>
@@ -14,12 +14,12 @@
         <Product>BobDust.Rpc</Product>
 
         <!-- Assembly versions -->
-        <AssemblyVersion>0.10.2</AssemblyVersion>
-
+        <AssemblyVersion>0.10.3</AssemblyVersion>
+        <PackageVersion>0.10.3</PackageVersion>
         <!-- FileVersion may include build number from CI -->
-        <FileVersion>0.10.2</FileVersion>
+        <FileVersion>0.10.3</FileVersion>
         <!-- Specify the custom nuspec file if not done at project level -->
-        <NuspecFile>$(MSBuildThisFileDirectory)package.nuspec</NuspecFile>
+        <!-- <NuspecFile>$(MSBuildThisFileDirectory)package.nuspec</NuspecFile> -->
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\README.md" Pack="true" PackagePath="\" />

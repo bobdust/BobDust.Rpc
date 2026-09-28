@@ -215,33 +215,25 @@ namespace BobDust.Core.Extensions.Reflection.Emit
       {
          var returnType = method.ReturnType;
          var parameters = method.GetParameters();
-         var objParams = emitter.DeclareLocal(typeof(object[]));
+         emitter.Emit(OpCodes.Ldarg_0);
          emitter.Emit(OpCodes.Ldc_I4, parameters.Length);
          emitter.Emit(OpCodes.Newarr, typeof(object));
-         emitter.Emit(OpCodes.Stloc, objParams);
          for (var i = 0; i < parameters.Length; i++)
          {
-            emitter.Emit(OpCodes.Ldloc, objParams);
+            emitter.Emit(OpCodes.Dup);
             emitter.Emit(OpCodes.Ldc_I4, i);
             emitter.Emit(OpCodes.Ldarg, i + 1);
             emitter.Emit(OpCodes.Stelem_Ref);
          }
-         emitter.Emit(OpCodes.Ldarg_0);
-         emitter.Emit(OpCodes.Ldloc, objParams);
-         emitter.Emit(OpCodes.Call, invoke);
+         emitter.Emit(OpCodes.Ldstr, method.Name);
          if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
          {
-            var taskAwaiter = emitter.DeclareLocal(typeof(TaskAwaiter<object>));
-            emitter.DeclareLocal(returnType);
-            emitter.Emit(OpCodes.Callvirt, typeof(Task).GetMethod("GetAwaiter")!);
-            emitter.Emit(OpCodes.Stloc_1);
-            emitter.Emit(OpCodes.Ldloca_S, taskAwaiter);
-            emitter.Emit(OpCodes.Call, typeof(TaskAwaiter<object>).GetMethod("GetResult")!);
             var taskResultType = returnType.GetGenericArguments()[0];
-            emitter.Emit(OpCodes.Castclass, taskResultType);
-            emitter.Emit(OpCodes.Call, typeof(Task).GetMethod("FromResult")!.MakeGenericMethod(taskResultType));
-            emitter.Emit(OpCodes.Stloc_2);
-            emitter.Emit(OpCodes.Ldloc_2);
+            emitter.Emit(OpCodes.Call, invoke.MakeGenericMethod(taskResultType));
+         }
+         else
+         {
+            emitter.Emit(OpCodes.Call, invoke.MakeGenericMethod(typeof(object)));
          }
          emitter.Emit(OpCodes.Ret);
       }

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.10.3] - 2026-09-28
+### Added
+### Changed
+### Fixed
+- Corrects async operation name sent from client
+
 ## [0.10.2] - 2026-09-17
 ### Added
 ### Changed
