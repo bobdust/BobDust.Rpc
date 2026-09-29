@@ -8,11 +8,12 @@ namespace BobDust.Rpc.Sockets
 	abstract class Pipeline : ExceptionHandler, IPipeline
 	{
 		protected const int BufferSize = 8192;
+		private static readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
 		private Runnable _receivingTask;
 		private ConcurrentDictionary<Guid, ConcurrentQueue<Package>> _receivingQueues;
 
-		public Action<IPipeline, IBinarySequence>? OnReceived { get; set; }
+		public Func<IPipeline, IBinarySequence, Task>? OnReceived { get; set; }
 
 		public string Id { get; private set; }
 
@@ -47,24 +48,29 @@ namespace BobDust.Rpc.Sockets
 				}
 			}
 			var receivingQueue = _receivingQueues[token];
-			lock (receivingQueue)
+			await _semaphore.WaitAsync();
+			try
 			{
 				receivingQueue.Enqueue(package);
 				if (receivingQueue.Count == package.Count)
 				{
-					DataReceived(token);
+					await DataReceived(token);
 				}
+			}
+			finally
+			{
+				_semaphore.Release();
 			}
 		}
 
-		protected virtual void DataReceived(Guid token)
+		protected virtual async Task DataReceived(Guid token)
 		{
 			if (OnReceived != null)
 			{
 				var data = Receive(token);
 				if (data != null)
 				{
-					OnReceived(this, data);
+					await OnReceived(this, data);
 				}
 			}
 		}

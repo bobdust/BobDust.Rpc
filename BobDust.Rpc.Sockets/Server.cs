@@ -79,7 +79,7 @@ namespace BobDust.Rpc.Sockets
 			throw new NotSupportedException("No factory provided for executor creation.");
 		}
 
-		protected void Execute(IPipeline source, IBinarySequence data)
+		protected async Task Execute(IPipeline source, IBinarySequence data)
 		{
 			ICommandResult result;
 			var command = (ICommand)data;
@@ -117,18 +117,16 @@ namespace BobDust.Rpc.Sockets
 				{
 					result = command.Return();
 				}
-				else if (returnType == typeof(Task))
+				else if (returnType == typeof(Task) && returnValue is Task task)
 				{
-					var task = (Task)returnValue;
-					task.Wait();
+					await task;
 					result = command.Return();
 				}
-				else if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
+				else if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>) && returnValue is Task returnTask)
 				{
-					var task = (Task)returnValue;
-					task.Wait();
-					var resultProperty = task.GetType().GetProperty("Result");
-					var taskResult = resultProperty?.GetValue(task);
+					await returnTask;
+					var resultProperty = returnTask.GetType().GetProperty("Result");
+					var taskResult = resultProperty?.GetValue(returnTask);
 					result = command.Return(taskResult);
 				}
 				else

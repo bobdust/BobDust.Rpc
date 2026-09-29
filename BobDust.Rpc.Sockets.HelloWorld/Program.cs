@@ -13,5 +13,5 @@ var nickname = Console.ReadLine();
 words = await assistant.HelloAsync(new GreetingOptions { Name = nickname }, "Good day");
 Console.WriteLine(words);
 await assistant.HelloAndForgetAsync(new GreetingOptions { }, "gday");
-var tmp = "";
+Console.WriteLine("HelloAndForgetAsync sent");
 Console.ReadLine();

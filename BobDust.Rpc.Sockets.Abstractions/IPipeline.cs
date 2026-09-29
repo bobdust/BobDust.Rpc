@@ -13,6 +13,6 @@ namespace BobDust.Rpc.Sockets.Abstractions
         Task WriteAsync(byte[] buffer, CancellationToken cancellationToken);
         Task<int> ReadAsync(byte[] buffer, CancellationToken cancellationToken);
 
-        Action<IPipeline, IBinarySequence>? OnReceived { get; set; }
+        Func<IPipeline, IBinarySequence, Task>? OnReceived { get; set; }
 	}
 }

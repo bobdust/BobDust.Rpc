@@ -25,7 +25,7 @@ namespace BobDust.Rpc.Sockets
 			return ChannelContext.CurrentThreadContext.Token;
 		}
 
-		protected override void DataReceived(Guid token)
+		protected override async Task DataReceived(Guid token)
 		{
 			var context = ChannelContext.Get(token);
 			if (context == null)
@@ -40,7 +40,7 @@ namespace BobDust.Rpc.Sockets
 				{
 					using (_ = ChannelContext.New(token))
 					{
-						base.DataReceived(token);
+						await base.DataReceived(token);
 					}
 				}
 			}
