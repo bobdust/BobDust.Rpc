@@ -7,7 +7,7 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
         <!-- Versioning & Metadata -->
-        <Version>0.10.4</Version>
+        <Version>0.10.5</Version>
         <Authors>BobDust</Authors>
         <Company>BobDust</Company>
         <Copyright>Copyright ©BobDust 2012</Copyright>
@@ -20,13 +20,13 @@
         <RepositoryUrl>https://github.com/bobdust/BobDust.Rpc</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>dotnet;nuget;shared-utils;tcp-rpc</PackageTags>
-        <PackageVersion>0.10.4</PackageVersion>
+        <PackageVersion>0.10.5</PackageVersion>
         <PackageReadmeFile>README.md</PackageReadmeFile>
 
         <!-- Assembly versions -->
-        <AssemblyVersion>0.10.4</AssemblyVersion>
+        <AssemblyVersion>0.10.5</AssemblyVersion>
         <!-- FileVersion may include build number from CI -->
-        <FileVersion>0.10.4</FileVersion>
+        <FileVersion>0.10.5</FileVersion>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\README.md" Pack="true" PackagePath="\" />

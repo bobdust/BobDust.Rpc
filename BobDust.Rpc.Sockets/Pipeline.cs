@@ -13,7 +13,7 @@ namespace BobDust.Rpc.Sockets
 		private Runnable _receivingTask;
 		private ConcurrentDictionary<Guid, ConcurrentQueue<Package>> _receivingQueues;
 
-		public Func<IPipeline, IBinarySequence, Task>? OnReceived { get; set; }
+		public Func<IPipeline, IBinarySequence, Guid, Task>? OnReceived { get; set; }
 
 		public string Id { get; private set; }
 
@@ -70,7 +70,7 @@ namespace BobDust.Rpc.Sockets
 				var data = Receive(token);
 				if (data != null)
 				{
-					await OnReceived(this, data);
+					await OnReceived(this, data, token);
 				}
 			}
 		}
@@ -99,13 +99,12 @@ namespace BobDust.Rpc.Sockets
 
 		public abstract Task<int> ReadAsync(byte[] buffer, CancellationToken cancellationToken);
 
-		public void Send(IBinarySequence data)
+		public void Send(IBinarySequence data, Guid token)
 		{
 			var bytes = data.ToBytes();
 			var dataSize = BufferSize - Package.HeaderSize;
 			var length = bytes.Length;
 			var count = length / dataSize + (length % dataSize > 0 ? 1 : 0);
-			var token = CreateDataToken();
 			using (var stream = new MemoryStream(bytes))
 			{
 				using (var reader = new BinaryReader(stream))
@@ -142,12 +141,6 @@ namespace BobDust.Rpc.Sockets
 					}
 				}
 			}
-		}
-
-		protected virtual Guid CreateDataToken()
-		{
-			var token = Guid.NewGuid();
-			return token;
 		}
 
 		protected IBinarySequence? Receive(Guid token)

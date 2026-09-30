@@ -20,11 +20,6 @@ namespace BobDust.Rpc.Sockets
 			return _deserialize(bytes);
 		}
 
-		protected override Guid CreateDataToken()
-		{
-			return ChannelContext.CurrentThreadContext.Token;
-		}
-
 		protected override async Task DataReceived(Guid token)
 		{
 			var context = ChannelContext.Get(token);
@@ -33,8 +28,7 @@ namespace BobDust.Rpc.Sockets
 				var asyncContext = AsyncContext.Get(token);
 				if (asyncContext != null)
 				{
-					asyncContext.WaitHandle.Set();
-					//asyncContext.WaitHandle.Release();
+					asyncContext.Set();
 				}
 				else // server-side pipeline
 				{
@@ -54,7 +48,7 @@ namespace BobDust.Rpc.Sockets
 		{
 			using (var context = ChannelContext.New())
 			{
-				Send(request);
+				Send(request, context.Token);
 				context.WaitHandle.WaitOne(MillisecondsTimeout);
 				var response = Receive(context.Token);
 				if (response == null)
@@ -70,7 +64,7 @@ namespace BobDust.Rpc.Sockets
 			await using (var context = AsyncContext.New())
 			{
 				await SendAsync(request, context.Token, context.CancellationToken);
-				context.WaitHandle.WaitOne(MillisecondsTimeout);
+				await context.WaitAsync(MillisecondsTimeout);
 				var response = Receive(context.Token);
 				if (response == null)
 				{
@@ -98,24 +92,6 @@ namespace BobDust.Rpc.Sockets
 			public Guid Token { get; private set; }
 			public AutoResetEvent WaitHandle { get; private set; }
 
-			public static ChannelContext CurrentThreadContext
-			{
-				get
-				{
-					var threadId = Thread.CurrentThread.ManagedThreadId;
-					var context = AppDomain.CurrentDomain.GetData(threadId.ToString());
-					if (context == null)
-					{
-						throw new InvalidOperationException("No channel context is associated with the current thread.");
-					}
-					return (ChannelContext)context;
-				}
-				private set
-				{
-					AppDomain.CurrentDomain.SetData(Thread.CurrentThread.ManagedThreadId.ToString(), value);
-				}
-			}
-
 			public static ChannelContext? Get(Guid token)
 			{
 				if (_contexts.ContainsKey(token))
@@ -134,7 +110,6 @@ namespace BobDust.Rpc.Sockets
 			{
 				var context = new ChannelContext(token);
 				_contexts[token] = context;
-				CurrentThreadContext = context;
 				return context;
 			}
 
@@ -149,6 +124,8 @@ namespace BobDust.Rpc.Sockets
 		{
 			private static ConcurrentDictionary<Guid, AsyncContext> _contexts;
 
+			private readonly SemaphoreSlim _signal = new(0, 1);
+
 			static AsyncContext()
 			{
 				_contexts = new ConcurrentDictionary<Guid, AsyncContext>();
@@ -157,14 +134,11 @@ namespace BobDust.Rpc.Sockets
 			private AsyncContext(Guid token)
 			{
 				Token = token;
-				WaitHandle = new AutoResetEvent(false);
-				//WaitHandle = new SemaphoreSlim(0, 1);
+				_signal = new SemaphoreSlim(0, 1);
 				CancellationToken = new CancellationToken();
 			}
 
 			public Guid Token { get; private set; }
-			public AutoResetEvent WaitHandle { get; private set; }
-			//public SemaphoreSlim WaitHandle { get; private set; }
 			public CancellationToken CancellationToken { get; private set; }
 
 			public static AsyncContext? Get(Guid token)
@@ -190,10 +164,19 @@ namespace BobDust.Rpc.Sockets
 
             public async ValueTask DisposeAsync()
             {
-				WaitHandle.Set();
-				//WaitHandle.Release();
-				WaitHandle.Dispose();
+				_signal.Release();
+				_signal.Dispose();
 				_contexts.TryRemove(Token, out var _);
+			}
+
+			public Task WaitAsync(int millisecondsTimeout) => _signal.WaitAsync(millisecondsTimeout);
+
+			public void Set()
+			{
+				if (_signal.CurrentCount == 0)
+				{
+					_signal.Release();
+				}
 			}
         }
 	}

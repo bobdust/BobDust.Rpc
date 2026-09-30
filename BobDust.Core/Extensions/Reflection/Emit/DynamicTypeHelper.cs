@@ -4,7 +4,6 @@ using System.Dynamic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
-using System.Runtime.CompilerServices;
 
 namespace BobDust.Core.Extensions.Reflection.Emit
 {
@@ -226,6 +225,15 @@ namespace BobDust.Core.Extensions.Reflection.Emit
             emitter.Emit(OpCodes.Stelem_Ref);
          }
          emitter.Emit(OpCodes.Ldstr, method.Name);
+         emitter.Emit(OpCodes.Ldc_I4, parameters.Length);
+         emitter.Emit(OpCodes.Newarr, typeof(string));
+         for (var i = 0; i < parameters.Length; i++)
+         {
+            emitter.Emit(OpCodes.Dup);
+            emitter.Emit(OpCodes.Ldc_I4, i);
+            emitter.Emit(OpCodes.Ldstr, parameters[i].Name);
+            emitter.Emit(OpCodes.Stelem_Ref);
+         }
          if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
          {
             var taskResultType = returnType.GetGenericArguments()[0];
@@ -238,26 +246,29 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          emitter.Emit(OpCodes.Ret);
       }
 
-      private static void EmitAsyncStateMachine(ILGenerator emitter, MethodInfo method, MethodInfo invoke)
-      {
-      }
-
       private static void EmitSyncBody(ILGenerator emitter, MethodInfo method, MethodInfo invoke)
       {
          var parameters = method.GetParameters();
-         var objParams = emitter.DeclareLocal(typeof(object[]));
+         emitter.Emit(OpCodes.Ldarg_0);
          emitter.Emit(OpCodes.Ldc_I4, parameters.Length);
          emitter.Emit(OpCodes.Newarr, typeof(object));
-         emitter.Emit(OpCodes.Stloc, objParams);
          for (var i = 0; i < parameters.Length; i++)
          {
-            emitter.Emit(OpCodes.Ldloc, objParams);
+            emitter.Emit(OpCodes.Dup);
             emitter.Emit(OpCodes.Ldc_I4, i);
             emitter.Emit(OpCodes.Ldarg, i + 1);
             emitter.Emit(OpCodes.Stelem_Ref);
          }
-         emitter.Emit(OpCodes.Ldarg_0);
-         emitter.Emit(OpCodes.Ldloc, objParams);
+         emitter.Emit(OpCodes.Ldstr, method.Name);
+         emitter.Emit(OpCodes.Ldc_I4, parameters.Length);
+         emitter.Emit(OpCodes.Newarr, typeof(string));
+         for (var i = 0; i < parameters.Length; i++)
+         {
+            emitter.Emit(OpCodes.Dup);
+            emitter.Emit(OpCodes.Ldc_I4, i);
+            emitter.Emit(OpCodes.Ldstr, parameters[i].Name);
+            emitter.Emit(OpCodes.Stelem_Ref);
+         }
          emitter.Emit(OpCodes.Call, invoke);
          if (method.ReturnType != typeof(void))
          {

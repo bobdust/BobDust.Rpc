@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.10.5] - 2026-09-30
+### Added
+### Changed
+- avoids expensive StackTrace traversal
+### Fixed
+
 ## [0.10.4] - 2026-09-29
 ### Added
 ### Changed

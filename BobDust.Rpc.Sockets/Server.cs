@@ -58,7 +58,7 @@ namespace BobDust.Rpc.Sockets
 		private async Task Listen(CancellationToken cancellationToken)
 		{
 			var client = await _listener.AcceptTcpClientAsync(cancellationToken);
-			var sendSocket = _listener.AcceptSocket();
+			var sendSocket = await _listener.AcceptSocketAsync(cancellationToken);
 			var receiveSocket = client.Client;
             var pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize)
             {
@@ -79,7 +79,7 @@ namespace BobDust.Rpc.Sockets
 			throw new NotSupportedException("No factory provided for executor creation.");
 		}
 
-		protected async Task Execute(IPipeline source, IBinarySequence data)
+		protected async Task Execute(IPipeline source, IBinarySequence data, Guid token)
 		{
 			ICommandResult result;
 			var command = (ICommand)data;
@@ -145,7 +145,7 @@ namespace BobDust.Rpc.Sockets
 					result = command.Throw(ex);
 				}
 			}
-			source.Send(result);
+			source.Send(result, token);
 		}
 
 		protected ICommand Deserialize(byte[] bytes)
