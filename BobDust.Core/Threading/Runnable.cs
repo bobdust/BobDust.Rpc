@@ -6,7 +6,7 @@ namespace BobDust.Core.Threading
 	{
 		private Func<CancellationToken, Task> _handler;
 		private object _lock;
-		private ThreadState _state;
+		public ThreadState State { get; private set; } = ThreadState.Unstarted;
 		private CancellationTokenSource _cancellationTokenSource;
 
 		public Runnable(Func<CancellationToken, Task> handler)
@@ -20,7 +20,7 @@ namespace BobDust.Core.Threading
 		{
 			lock (_lock)
 			{
-				_state = ThreadState.Running;
+				State = ThreadState.Running;
 			}
 			Task.Run(Run);
 		}
@@ -29,14 +29,14 @@ namespace BobDust.Core.Threading
 		{
 			try
 			{
-				var state = _state;
+				var state = State;
 				var cancellationToken = _cancellationTokenSource.Token;
 				while (state == ThreadState.Running && !cancellationToken.IsCancellationRequested)
 				{
 					await _handler(cancellationToken);
 					lock (_lock)
 					{
-						state = _state;
+						state = State;
 					}
 				}
 			}
@@ -50,7 +50,7 @@ namespace BobDust.Core.Threading
 		{
 			lock (_lock)
 			{
-				_state = ThreadState.Stopped;
+				State = ThreadState.Stopped;
 			}
 			_cancellationTokenSource.Cancel();
 		}

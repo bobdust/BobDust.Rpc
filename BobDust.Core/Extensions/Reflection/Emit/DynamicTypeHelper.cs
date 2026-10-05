@@ -86,6 +86,8 @@ namespace BobDust.Core.Extensions.Reflection.Emit
             _modules[moduleName] = module;
             return module;
          }
+         builder = assemblyBuilder as AssemblyBuilder;
+         moduleName = builder.GetName().Name;
          lock (_modules)
          {
             if (_modules.ContainsKey(moduleName))
@@ -93,8 +95,6 @@ namespace BobDust.Core.Extensions.Reflection.Emit
                return _modules[moduleName];
             }
          }
-         builder = assemblyBuilder as AssemblyBuilder;
-         moduleName = builder.GetName().Name;
          module = builder.DefineDynamicModule(moduleName);
          _modules[moduleName] = module;
          return module;
@@ -192,93 +192,26 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          return method.ReturnType == typeof(Task) || (method.ReturnType.IsGenericType && method.ReturnType.GetGenericTypeDefinition() == typeof(Task<>));
       }
 
-
-      public static Type Implement(this Type baseType, Type contractType, Func<MethodInfo, MethodInfo> getBaseMethod)
+      public static Type Implement(
+         this Type baseType, 
+         Type contractType, 
+         Func<MethodInfo, MethodInfo> getBaseMethod,
+         Action<ILGenerator, Type, MethodInfo, MethodInfo> emitSyncBody,
+         Action<ILGenerator, Type, MethodInfo, MethodInfo> emitAsyncBody)
       {
          var type = baseType.Implement(contractType, (method, emitter) =>
          {
             var invoke = getBaseMethod(method);
             if (method.IsAsync())
             {
-               EmitAsyncBody(emitter, method, invoke);
+               emitAsyncBody(emitter, contractType, method, invoke);
             }
             else
             {
-               EmitSyncBody(emitter, method, invoke);
+               emitSyncBody(emitter, contractType, method, invoke);
             }
          });
          return type;
-      }
-
-      private static void EmitAsyncBody(ILGenerator emitter, MethodInfo method, MethodInfo invoke)
-      {
-         var returnType = method.ReturnType;
-         var parameters = method.GetParameters();
-         emitter.Emit(OpCodes.Ldarg_0);
-         emitter.Emit(OpCodes.Ldc_I4, parameters.Length);
-         emitter.Emit(OpCodes.Newarr, typeof(object));
-         for (var i = 0; i < parameters.Length; i++)
-         {
-            emitter.Emit(OpCodes.Dup);
-            emitter.Emit(OpCodes.Ldc_I4, i);
-            emitter.Emit(OpCodes.Ldarg, i + 1);
-            emitter.Emit(OpCodes.Stelem_Ref);
-         }
-         emitter.Emit(OpCodes.Ldstr, method.Name);
-         emitter.Emit(OpCodes.Ldc_I4, parameters.Length);
-         emitter.Emit(OpCodes.Newarr, typeof(string));
-         for (var i = 0; i < parameters.Length; i++)
-         {
-            emitter.Emit(OpCodes.Dup);
-            emitter.Emit(OpCodes.Ldc_I4, i);
-            emitter.Emit(OpCodes.Ldstr, parameters[i].Name);
-            emitter.Emit(OpCodes.Stelem_Ref);
-         }
-         if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
-         {
-            var taskResultType = returnType.GetGenericArguments()[0];
-            emitter.Emit(OpCodes.Call, invoke.MakeGenericMethod(taskResultType));
-         }
-         else
-         {
-            emitter.Emit(OpCodes.Call, invoke.MakeGenericMethod(typeof(object)));
-         }
-         emitter.Emit(OpCodes.Ret);
-      }
-
-      private static void EmitSyncBody(ILGenerator emitter, MethodInfo method, MethodInfo invoke)
-      {
-         var parameters = method.GetParameters();
-         emitter.Emit(OpCodes.Ldarg_0);
-         emitter.Emit(OpCodes.Ldc_I4, parameters.Length);
-         emitter.Emit(OpCodes.Newarr, typeof(object));
-         for (var i = 0; i < parameters.Length; i++)
-         {
-            emitter.Emit(OpCodes.Dup);
-            emitter.Emit(OpCodes.Ldc_I4, i);
-            emitter.Emit(OpCodes.Ldarg, i + 1);
-            emitter.Emit(OpCodes.Stelem_Ref);
-         }
-         emitter.Emit(OpCodes.Ldstr, method.Name);
-         emitter.Emit(OpCodes.Ldc_I4, parameters.Length);
-         emitter.Emit(OpCodes.Newarr, typeof(string));
-         for (var i = 0; i < parameters.Length; i++)
-         {
-            emitter.Emit(OpCodes.Dup);
-            emitter.Emit(OpCodes.Ldc_I4, i);
-            emitter.Emit(OpCodes.Ldstr, parameters[i].Name);
-            emitter.Emit(OpCodes.Stelem_Ref);
-         }
-         emitter.Emit(OpCodes.Call, invoke);
-         if (method.ReturnType != typeof(void))
-         {
-            emitter.Emit(OpCodes.Castclass, method.ReturnType);
-         }
-         else
-         {
-            emitter.Emit(OpCodes.Pop);
-         }
-         emitter.Emit(OpCodes.Ret);
       }
 
       public static Type Extend(this Type baseType, string typeName)

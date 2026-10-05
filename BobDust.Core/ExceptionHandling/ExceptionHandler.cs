@@ -4,7 +4,7 @@ namespace BobDust.Core.ExceptionHandling
 {
     public abstract class ExceptionHandler : IExceptionHandler
    {
-      public Action<System.Exception, IExceptionHandler> OnException { get; set; }
+      public Action<Exception, IExceptionHandler> OnException { get; set; }
 
       protected virtual void Handle(Exception ex, IExceptionHandler source)
       {

@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BobDust.Rpc.Sockets.HelloWo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BobDust.Rpc.Sockets.ServerSample", "BobDust.Rpc.Sockets.ServerSample\BobDust.Rpc.Sockets.ServerSample.csproj", "{DAB25B2D-B5C6-4578-B975-3FD91E8EFE29}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BobDust.Rpc.Sockets.HelloWorld.Dummies", "BobDust.Rpc.Sockets.HelloWorld.Dummies\BobDust.Rpc.Sockets.HelloWorld.Dummies.csproj", "{36840921-0912-47F5-93AF-05BDB18C2C90}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{DAB25B2D-B5C6-4578-B975-3FD91E8EFE29}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAB25B2D-B5C6-4578-B975-3FD91E8EFE29}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAB25B2D-B5C6-4578-B975-3FD91E8EFE29}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36840921-0912-47F5-93AF-05BDB18C2C90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36840921-0912-47F5-93AF-05BDB18C2C90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36840921-0912-47F5-93AF-05BDB18C2C90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36840921-0912-47F5-93AF-05BDB18C2C90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

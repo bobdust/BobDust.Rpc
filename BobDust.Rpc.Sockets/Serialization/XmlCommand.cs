@@ -1,15 +1,14 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Xml;
-using System.IO;
 using BobDust.Core.Extensions;
 using BobDust.Rpc.Sockets.Abstractions;
-using System.Collections.Generic;
 
 namespace BobDust.Rpc.Sockets.Serialization
 {
 	class XmlCommand : Command, ICommand
 	{
+		public string ContractType { get; }
+
 		private class XmlNames
 		{
 			public const string Parameter = "Parameter";
@@ -28,7 +27,13 @@ namespace BobDust.Rpc.Sockets.Serialization
 			Parameters = parameters;
 		}
 
-		public override void Write(System.IO.BinaryWriter writer)
+		public XmlCommand(string contractType, string operationName, IEnumerable<(string Name, object Value)> parameters)
+		   : this(operationName, parameters)
+		{
+			ContractType = contractType;
+		}
+
+		public override void Write(BinaryWriter writer)
 		{
 			var builder = new StringBuilder();
 			var settings = new XmlWriterSettings { OmitXmlDeclaration = true };

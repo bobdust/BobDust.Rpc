@@ -1,5 +1,4 @@
 ﻿using BobDust.Rpc.Sockets.Abstractions;
-using System;
 
 namespace BobDust.Rpc.Sockets.Serialization
 {
@@ -8,7 +7,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 	{
 		public BinaryCommandResult() : base() { }
 
-		public BinaryCommandResult(string operationName) : base(operationName)
+		public BinaryCommandResult(string operationName) : base(string.Empty, operationName)
 		{
 		}
 
@@ -17,14 +16,9 @@ namespace BobDust.Rpc.Sockets.Serialization
 			ReturnValue = returnValue;
 		}
 
-		public BinaryCommandResult(string operationName, Exception exception) : this(operationName)
-		{
-			Exception = exception;
-		}
+		public object? ReturnValue { get; private set; }
 
-		public object ReturnValue { get; private set; }
-
-		public Exception Exception { get; private set; }
+		public Exception? Exception { get; private set; }
 
 		protected override void CopyFrom(BinaryCommandBase deserialized)
 		{

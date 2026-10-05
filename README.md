@@ -2,12 +2,17 @@
 
 
 * Quick summary: RPC socket library and samples to use it.
-* Version: 0.10.5.
+* Version: 0.11.0.
 
 * Refer to BobDust.Rpc.Sockets.HelloWorld and BobDust.Rpc.Sockets.ServerSample in https://github.com/bobdust/BobDust.Rpc for the samples.
 * Dependencies: .NET 8, System.Reflection.Emit.
 
-* Please contact ceillingbob@gmail.com for any enqueries.
+## License
+
+This project is licensed under the Commercial Restricted License (CRL) v1.1.
+See [LICENSE.md](LICENSE.md) for details.
+
+For commercial use, please contact [ceillingbob@gmail.com] for licensing options.
 
 > OOP is the bone of my framework
 > 

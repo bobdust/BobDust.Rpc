@@ -1,13 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-  </PropertyGroup>
-
   <ItemGroup>
-    <ProjectReference Include="..\BobDust.Rpc.Sockets.HelloWorld.Dummies\BobDust.Rpc.Sockets.HelloWorld.Dummies.csproj" />
     <!-- <ProjectReference Include="..\BobDust.Rpc.Sockets\BobDust.Rpc.Sockets.csproj" /> -->
     <PackageReference Include="BobDust.Rpc.Sockets" />
   </ItemGroup>
-
 </Project>

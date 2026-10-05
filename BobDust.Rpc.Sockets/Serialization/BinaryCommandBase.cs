@@ -1,18 +1,18 @@
-﻿using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using System.Runtime.Serialization.Formatters.Binary;
 
 namespace BobDust.Rpc.Sockets.Serialization
 {
 	[Serializable]
 	abstract class BinaryCommandBase : BinarySequence
 	{
-		public string OperationName { get; private set; }
+		public string? ContractType { get; private set; }
+		public string? OperationName { get; private set; }
 
 		public BinaryCommandBase() : base() { }
 
-		public BinaryCommandBase(string operationName)
+		public BinaryCommandBase(string contractType, string operationName)
 		{
+			ContractType = contractType;
 			OperationName = operationName;
 		}
 
@@ -36,6 +36,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 
 		protected virtual void CopyFrom(BinaryCommandBase deserialized)
 		{
+			ContractType = deserialized.ContractType;
 			OperationName = deserialized.OperationName;
 		}
 
