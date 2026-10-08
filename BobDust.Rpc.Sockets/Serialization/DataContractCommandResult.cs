@@ -11,7 +11,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 		{
 		}
 
-		public DataContractCommandResult(string ContractType, string operationName, object returnValue) : this(ContractType, operationName)
+		public DataContractCommandResult(string ContractType, string operationName, object? returnValue) : this(ContractType, operationName)
 		{
 			ReturnValue = returnValue;
 		}
@@ -42,7 +42,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 
         protected override DataContractCommandBase ReadObject(DataContractSerializer serializer, Stream stream)
         {
-            return (DataContractCommandResult)serializer.ReadObject(stream);
+            return (DataContractCommandResult)serializer.ReadObject(stream)!;
         }
 
         protected override void WriteObject(DataContractSerializer serializer, Stream stream)

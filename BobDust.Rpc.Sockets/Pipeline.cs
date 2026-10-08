@@ -102,44 +102,18 @@ namespace BobDust.Rpc.Sockets
 		public void Send(IBinarySequence data, Guid token)
 		{
 			var bytes = data.ToBytes();
-			var dataSize = BufferSize - Package.HeaderSize;
-			var length = bytes.Length;
-			var count = length / dataSize + (length % dataSize > 0 ? 1 : 0);
-			using (var stream = new MemoryStream(bytes))
+			foreach(var package in Package.Split(bytes, token, BufferSize))
 			{
-				using (var reader = new BinaryReader(stream))
-				{
-					for (var index = 1; index <= count; index++)
-					{
-						var remainLength = (int)(stream.Length - stream.Position);
-						var bytesCount = remainLength > dataSize ? dataSize : remainLength;
-						var packageData = reader.ReadBytes(bytesCount);
-						var package = new Package(token, index, count, packageData);
-						Write(package.ToBytes());
-					}
-				}
+				Write(package.ToBytes());
 			}
 		}
 
 		public async Task SendAsync(IBinarySequence data, Guid token, CancellationToken cancellationToken = default)
 		{
 			var bytes = data.ToBytes();
-			var dataSize = BufferSize - Package.HeaderSize;
-			var length = bytes.Length;
-			var count = length / dataSize + (length % dataSize > 0 ? 1 : 0);
-			using (var stream = new MemoryStream(bytes))
+			await foreach(var package in Package.SplitAsync(bytes, token, BufferSize))
 			{
-				using (var reader = new BinaryReader(stream))
-				{
-					for (var index = 1; index <= count; index++)
-					{
-						var remainLength = (int)(stream.Length - stream.Position);
-						var bytesCount = remainLength > dataSize ? dataSize : remainLength;
-						var packageData = reader.ReadBytes(bytesCount);
-						var package = new Package(token, index, count, packageData);
-						await WriteAsync(package.ToBytes(), cancellationToken);
-					}
-				}
+				await WriteAsync(package.ToBytes(), cancellationToken);
 			}
 		}
 
@@ -148,7 +122,7 @@ namespace BobDust.Rpc.Sockets
 			if (_receivingQueues.TryRemove(token, out var receivingQueue))
 			{
 				var package = Package.Join(receivingQueue);
-				return Deserialize(package.Data);
+				return Deserialize(package.Data!);
 			}
 			return null;
 		}

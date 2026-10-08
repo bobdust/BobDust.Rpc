@@ -4,8 +4,4 @@
     <PackageId>BobDust.Core</PackageId>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="System.Reflection.Emit" />
-  </ItemGroup>
-
 </Project>

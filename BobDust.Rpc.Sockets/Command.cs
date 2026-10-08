@@ -1,13 +1,10 @@
 ﻿using BobDust.Rpc.Sockets.Abstractions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace BobDust.Rpc.Sockets
 {
 	abstract class Command : BinarySequence
 	{
-		public string OperationName
+		public string? OperationName
 		{
 			get;
 			protected set;
@@ -21,7 +18,7 @@ namespace BobDust.Rpc.Sockets
 
 		public Command()
 		{
-			Parameters = Enumerable.Empty<(string Name, object Value)> ();
+			Parameters = Enumerable.Empty<(string Name, object Value)>();
 		}
 
 		public Command(string operationName)

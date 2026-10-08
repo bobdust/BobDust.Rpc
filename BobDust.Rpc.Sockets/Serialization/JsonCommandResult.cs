@@ -3,7 +3,7 @@ using BobDust.Rpc.Sockets.Abstractions;
 
 namespace BobDust.Rpc.Sockets.Serialization
 {
-	public class JsonCommandResult : JsonCommandBase, ICommandResult
+	class JsonCommandResult : JsonCommandBase, ICommandResult
 	{
         public JsonCommandResult() : base() { }
 
@@ -11,7 +11,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 		{
 		}
 
-		public JsonCommandResult(string ContractType, string operationName, object returnValue) : this(ContractType, operationName)
+		public JsonCommandResult(string ContractType, string operationName, object? returnValue) : this(ContractType, operationName)
 		{
 			ReturnValue = returnValue;
 		}
@@ -33,14 +33,14 @@ namespace BobDust.Rpc.Sockets.Serialization
 			Exception = commandResult.Exception;
 		}
 
-        protected override JsonCommandBase Deserialize(byte[] bytes, JsonSerializerOptions options)
+        protected override JsonCommandBase Deserialize(Stream stream, JsonSerializerOptions options)
         {
-            return JsonSerializer.Deserialize<JsonCommandResult>(bytes, options);
+            return JsonSerializer.Deserialize<JsonCommandResult>(stream, options)!;
         }
 
-        protected override byte[] Serialize(JsonSerializerOptions options)
+        protected override void Serialize(Stream stream, JsonSerializerOptions options)
         {
-            return JsonSerializer.SerializeToUtf8Bytes(this, options);
+            JsonSerializer.Serialize(stream, this, options);
         }
     }
 }

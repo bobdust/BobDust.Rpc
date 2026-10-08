@@ -1,5 +1,4 @@
-﻿using System.Text;
-using System.Xml;
+﻿using System.Xml;
 using BobDust.Core.Extensions;
 using BobDust.Rpc.Sockets.Abstractions;
 
@@ -24,7 +23,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 		{
 		}
 
-		public XmlCommandResult(string operationName, object returnValue)
+		public XmlCommandResult(string operationName, object? returnValue)
 		   : base(operationName, returnValue)
 		{
 		}
@@ -34,65 +33,54 @@ namespace BobDust.Rpc.Sockets.Serialization
 		{
 		}
 
-		public override void Write(BinaryWriter writer)
+		public override void Write(Stream stream)
 		{
-			var builder = new StringBuilder();
 			var settings = new XmlWriterSettings { OmitXmlDeclaration = true };
-			using (var xmlWriter = XmlWriter.Create(builder, settings))
+			using var xmlWriter = XmlWriter.Create(stream, settings);
+			xmlWriter.WriteStartElement(OperationName!);
+			if (ReturnValue != null)
 			{
-				xmlWriter.WriteStartElement(OperationName);
-				if (ReturnValue != null)
-				{
-					xmlWriter.WriteStartElement(XmlNames.Return);
-					xmlWriter.Write(ReturnValue);
-					xmlWriter.WriteEndElement();
-				}
-				else if (Exception != null)
-				{
-					xmlWriter.WriteStartElement(XmlNames.Exception);
-					xmlWriter.WriteAttributeString(XmlNames.Type, Exception.GetType().AssemblyQualifiedName);
-					xmlWriter.WriteObject(Exception);
-					xmlWriter.WriteEndElement();
-				}
+				xmlWriter.WriteStartElement(XmlNames.Return);
+				xmlWriter.Write(ReturnValue);
 				xmlWriter.WriteEndElement();
 			}
-			writer.Write(builder.ToString());
+			else if (Exception != null)
+			{
+				xmlWriter.WriteStartElement(XmlNames.Exception);
+				xmlWriter.WriteAttributeString(XmlNames.Type, Exception.GetType().AssemblyQualifiedName);
+				xmlWriter.WriteObject(Exception);
+				xmlWriter.WriteEndElement();
+			}
+			xmlWriter.WriteEndElement();
 		}
 
-		public override void Read(BinaryReader reader)
+		public override void Read(Stream stream)
 		{
-			var xml = reader.ReadString();
-			using (var stringReader = new StringReader(xml))
+			using var xmlReader = XmlReader.Create(stream);
+			xmlReader.Read();
+			OperationName = xmlReader.Name;
+			xmlReader.Read();
+			var typeAttribute = xmlReader.GetAttribute(XmlNames.Type);
+			if (typeAttribute != null)
 			{
-				using (var xmlReader = XmlReader.Create(stringReader))
+				var type = Type.GetType(typeAttribute);
+				if (xmlReader.Name == XmlNames.Return)
 				{
-					xmlReader.Read();
-					OperationName = xmlReader.Name;
-					xmlReader.Read();
-					var typeAttribute = xmlReader.GetAttribute(XmlNames.Type);
-					if (typeAttribute != null)
+					if (xmlReader.IsStartElement(XmlNames.Return))
 					{
-						var type = Type.GetType(typeAttribute);
-						if (xmlReader.Name == XmlNames.Return)
-						{
-							if (xmlReader.IsStartElement(XmlNames.Return))
-							{
-								xmlReader.Read();
-							}
-							ReturnValue = xmlReader.Read(type);
-						}
-						else if (xmlReader.Name == XmlNames.Exception)
-						{
-							if (xmlReader.IsStartElement(XmlNames.Exception))
-							{
-								xmlReader.Read();
-							}
-							Exception = xmlReader.ReadObject<Exception>();
-						}
+						xmlReader.Read();
 					}
+					ReturnValue = xmlReader.Read(type!);
+				}
+				else if (xmlReader.Name == XmlNames.Exception)
+				{
+					if (xmlReader.IsStartElement(XmlNames.Exception))
+					{
+						xmlReader.Read();
+					}
+					Exception = xmlReader.ReadObject<Exception>();
 				}
 			}
 		}
-
 	}
 }

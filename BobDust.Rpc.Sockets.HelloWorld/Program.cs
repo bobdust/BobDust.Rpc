@@ -4,7 +4,10 @@ using BobDust.Rpc.Sockets.HelloWorld;
 const string host = "127.0.0.1";
 const int port = 1234;
 var assistant = ClientFactory
-    .WithSettings(Settings.Json)
+    //.WithSettings(Settings.DataContract([typeof(GreetingOptions)]))
+    //.WithSettings(Settings.Json)
+    .WithSettings(Settings.Xml)
+    //.Default
     .Get<IGreetingAssistant>(host, port);
 Console.Write("Your name: ");
 var name = Console.ReadLine();

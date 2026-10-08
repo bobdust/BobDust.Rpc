@@ -1,22 +1,20 @@
-﻿using System;
-
-namespace BobDust.Rpc.Sockets
+﻿namespace BobDust.Rpc.Sockets
 {
 	abstract class CommandResult : BinarySequence
 	{
-		public object ReturnValue
+		public object? ReturnValue
 		{
 			get;
 			protected set;
 		}
 
-		public string OperationName
+		public string? OperationName
 		{
 			get;
 			protected set;
 		}
 
-		public Exception Exception
+		public Exception? Exception
 		{
 			get;
 			protected set;
@@ -31,7 +29,7 @@ namespace BobDust.Rpc.Sockets
 			OperationName = operationName;
 		}
 
-		protected CommandResult(string operationName, object returnValue)
+		protected CommandResult(string operationName, object? returnValue)
 		{
 			OperationName = operationName;
 			ReturnValue = returnValue;

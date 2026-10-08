@@ -2,7 +2,7 @@
 
 namespace BobDust.Rpc.Sockets.Serialization
 {
-	public abstract class JsonCommandBase : BinarySequence
+	abstract class JsonCommandBase : BinarySequence
 	{
 		private readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
 		{
@@ -28,25 +28,9 @@ namespace BobDust.Rpc.Sockets.Serialization
 			OperationName = operationName;
 		}
 
-		protected abstract JsonCommandBase Deserialize(byte[] bytes, JsonSerializerOptions options);
+		protected abstract JsonCommandBase Deserialize(Stream stream, JsonSerializerOptions options);
 
-		protected abstract byte[] Serialize(JsonSerializerOptions options);
-
-		public override void Read(BinaryReader reader)
-		{
-			const int bufferSize = 4096;
-			using var stream = new MemoryStream();
-			var buffer = new byte[bufferSize];
-			var count = 0;
-			while ((count = reader.Read(buffer, 0, buffer.Length)) != 0)
-			{
-				stream.Write(buffer, 0, count);
-			}
-			stream.Seek(0, SeekOrigin.Begin);
-			var jsonBytes = stream.ToArray();
-			var deserialized = Deserialize(jsonBytes, _jsonSerializerOptions);
-			CopyFrom(deserialized);
-		}
+		protected abstract void Serialize(Stream stream, JsonSerializerOptions options);
 
 		protected virtual void CopyFrom(JsonCommandBase deserialized)
 		{
@@ -54,10 +38,15 @@ namespace BobDust.Rpc.Sockets.Serialization
 			OperationName = deserialized.OperationName;
 		}
 
-		public override void Write(BinaryWriter writer)
+		public override void Write(Stream stream)
 		{
-			var bytes = Serialize(_jsonSerializerOptions);
-			writer.Write(bytes);
+			Serialize(stream, _jsonSerializerOptions);
+		}
+
+		public override void Read(Stream stream)
+		{
+			var deserialized = Deserialize(stream, _jsonSerializerOptions);
+			CopyFrom(deserialized);
 		}
 	}
 }

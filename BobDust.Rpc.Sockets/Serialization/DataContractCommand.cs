@@ -7,7 +7,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 	public class DataContractCommand : DataContractCommandBase, ICommand
 	{
 		[DataMember]
-		public IEnumerable<(string Name, object Value)>? Parameters { get; private set; }
+		public IEnumerable<(string Name, object Value)>? Parameters { get; set; }
 
 		public DataContractCommand() : base() { }
 
@@ -25,17 +25,17 @@ namespace BobDust.Rpc.Sockets.Serialization
 
 		public ICommandResult Return()
 		{
-			return new DataContractCommandResult(ContractType, OperationName);
+			return new DataContractCommandResult(ContractType!, OperationName!);
 		}
 
 		public ICommandResult Return(object? value)
 		{
-			return new DataContractCommandResult(ContractType, OperationName, value);
+			return new DataContractCommandResult(ContractType!, OperationName!, value);
 		}
 
 		public ICommandResult Throw(Exception exception)
 		{
-			return new DataContractCommandResult(ContractType, OperationName, exception);
+			return new DataContractCommandResult(ContractType!, OperationName!, exception);
 		}
 
         protected override DataContractSerializer GetSerializer()
@@ -45,7 +45,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 
         protected override DataContractCommandBase ReadObject(DataContractSerializer serializer, Stream stream)
         {
-            return (DataContractCommand)serializer.ReadObject(stream);
+            return (DataContractCommand)serializer.ReadObject(stream)!;
         }
 
         protected override void WriteObject(DataContractSerializer serializer, Stream stream)

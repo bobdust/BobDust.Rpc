@@ -11,6 +11,8 @@ public record Settings
 
     public static Settings Json { get; } = new Settings(DataFormatType.Json);
 
+    public static Settings Xml { get; } = new Settings(DataFormatType.Xml);
+
     private Settings(DataFormatType dataFormat)
     {
         DataFormat = dataFormat;

@@ -15,6 +15,7 @@ public static class Helpers
             DataContractCommandBase.KnownTypes = knownTypes;
         }
     }
+
     public static Func<byte[], ICommand> BuildCommandFromBytes(Settings settings)
     {
         SetKnownTypes(settings);

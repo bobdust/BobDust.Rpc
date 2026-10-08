@@ -24,17 +24,17 @@ namespace BobDust.Rpc.Sockets.Serialization
 
 		public ICommandResult Return()
 		{
-			return new BinaryCommandResult(OperationName);
+			return new BinaryCommandResult(OperationName!);
 		}
 
 		public ICommandResult Return(object? value)
 		{
-			return new BinaryCommandResult(OperationName, value);
+			return new BinaryCommandResult(OperationName!, value);
 		}
 
 		public ICommandResult Throw(Exception exception)
 		{
-			return new BinaryCommandResult(OperationName, exception);
+			return new BinaryCommandResult(OperationName!, exception);
 		}
 	}
 }

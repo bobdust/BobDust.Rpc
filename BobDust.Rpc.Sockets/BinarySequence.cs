@@ -5,35 +5,24 @@ namespace BobDust.Rpc.Sockets
 	[Serializable]
 	public abstract class BinarySequence
 	{
-
 		public static T FromBytes<T>(byte[] bytes)
 		   where T : IBinarySequence, new()
 		{
 			var instance = new T();
-			using (var stream = new MemoryStream(bytes))
-			{
-				using (var reader = new BinaryReader(stream))
-				{
-					instance.Read(reader);
-				}
-			}
+			using var stream = new MemoryStream(bytes);
+			instance.Read(stream);
 			return instance;
 		}
 
 		public virtual byte[] ToBytes()
 		{
-			using (var stream = new MemoryStream())
-			{
-				using (var writer = new BinaryWriter(stream))
-				{
-					Write(writer);
-				}
-				return stream.ToArray();
-			}
+			using var stream = new MemoryStream();
+			Write(stream);
+			return stream.ToArray();
 		}
 
-		public abstract void Write(BinaryWriter writer);
+		public abstract void Write(Stream stream);
 
-		public abstract void Read(BinaryReader reader);
+		public abstract void Read(Stream stream);
 	}
 }

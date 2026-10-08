@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.IO;
-using BobDust.Rpc.Sockets.Abstractions;
+﻿using BobDust.Rpc.Sockets.Abstractions;
 
 namespace BobDust.Rpc.Sockets
 {
@@ -10,13 +6,12 @@ namespace BobDust.Rpc.Sockets
 	{
 		private const int GuidSize = 16;
 
-
 		public static implicit operator Package(byte[] bytes)
 		{
-			return BinarySequence.FromBytes<Package>(bytes);
+			return FromBytes<Package>(bytes);
 		}
 
-		private static Package _empty;
+		private static Package? _empty;
 		public static Package Empty
 		{
 			get
@@ -44,10 +39,44 @@ namespace BobDust.Rpc.Sockets
 			return package;
 		}
 
+		public static IEnumerable<Package> Split(byte[] bytes, Guid token, int bufferSize)
+		{
+			var dataSize = bufferSize - HeaderSize;
+			var length = bytes.Length;
+			var count = length / dataSize + (length % dataSize > 0 ? 1 : 0);
+			var position = 0;
+			for (var index = 1; index <= count; index++)
+			{
+				var remainLength = length - position;
+				var bytesCount = remainLength > dataSize ? dataSize : remainLength;
+				byte[] packageData = bytes[position .. (position + bytesCount)];
+				var package = new Package(token, index, count, packageData);
+				position += bytesCount;
+				yield return package;
+			}
+		}
+
+		public static async IAsyncEnumerable<Package> SplitAsync(byte[] bytes, Guid token, int bufferSize)
+		{
+			var dataSize = bufferSize - HeaderSize;
+			var length = bytes.Length;
+			var count = length / dataSize + (length % dataSize > 0 ? 1 : 0);
+			var position = 0;
+			await foreach(var index in AsyncEnumerable.Range(1, count))
+			{
+				var remainLength = length - position;
+				var bytesCount = remainLength > dataSize ? dataSize : remainLength;
+				byte[] packageData = bytes[position .. (position + bytesCount)];
+				var package = new Package(token, index, count, packageData);
+				position += bytesCount;
+				yield return package;
+			}
+		}
+
 		public Guid Token { get; private set; }
 		public int Index { get; private set; }
 		public int Count { get; private set; }
-		public byte[] Data { get; private set; }
+		public byte[]? Data { get; private set; }
 
 		public bool Deliverable
 		{
@@ -78,20 +107,32 @@ namespace BobDust.Rpc.Sockets
 			return new Package(Token, Index, Count - 1, Data.Concat(package.Data).ToArray());
 		}
 
-		public override void Write(BinaryWriter writer)
+		private void Write(BinaryWriter writer)
 		{
 			writer.Write(Token.ToByteArray());
 			writer.Write(Index);
 			writer.Write(Count);
-			writer.Write(Data);
+			writer.Write(Data!);
 		}
 
-		public override void Read(BinaryReader reader)
+		private void Read(BinaryReader reader)
 		{
 			Token = new Guid(reader.ReadBytes(GuidSize));
 			Index = reader.ReadInt32();
 			Count = reader.ReadInt32();
 			Data = reader.ReadBytes((int)(reader.BaseStream.Length - HeaderSize));
+		}
+
+		public override void Write(Stream stream)
+		{
+			using var writer = new BinaryWriter(stream);
+			Write(writer);
+		}
+
+		public override void Read(Stream stream)
+		{
+			using var reader = new BinaryReader(stream);
+			Read(reader);
 		}
 	}
 }
