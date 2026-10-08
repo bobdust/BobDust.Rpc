@@ -2,6 +2,7 @@
 
 namespace BobDust.Rpc.Sockets.Serialization
 {
+	[Obsolete(".NET 10 no longer supports BinaryFormatter.")]
 	[Serializable]
 	class BinaryCommandResult : BinaryCommandBase, ICommandResult
 	{

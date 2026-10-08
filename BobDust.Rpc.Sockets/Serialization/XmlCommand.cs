@@ -7,7 +7,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 {
 	class XmlCommand : Command, ICommand
 	{
-		public string ContractType { get; }
+		public string ContractType { get; private set;}
 
 		private class XmlNames
 		{
@@ -39,6 +39,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 			var settings = new XmlWriterSettings { OmitXmlDeclaration = true };
 			using (var xmlWriter = XmlWriter.Create(builder, settings))
 			{
+				xmlWriter.WriteStartElement(ContractType);
 				xmlWriter.WriteStartElement(OperationName);
 				foreach (var parameter in Parameters)
 				{
@@ -50,17 +51,21 @@ namespace BobDust.Rpc.Sockets.Serialization
 					xmlWriter.WriteEndElement();
 				}
 				xmlWriter.WriteEndElement();
+				xmlWriter.WriteEndElement();
 			}
 			writer.Write(builder.ToString());
 		}
 
-		public override void Read(System.IO.BinaryReader reader)
+		public override void Read(BinaryReader reader)
 		{
 			var xml = reader.ReadString();
 			using (var stringReader = new StringReader(xml))
 			{
 				using (var xmlReader = XmlReader.Create(stringReader))
 				{
+					xmlReader.Read();
+					ContractType = xmlReader.Name;
+
 					xmlReader.Read();
 					OperationName = xmlReader.Name;
 					var paramList = new List<(string Name, object Value)>();

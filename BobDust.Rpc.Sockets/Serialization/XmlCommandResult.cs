@@ -1,7 +1,5 @@
-﻿using System;
-using System.Text;
+﻿using System.Text;
 using System.Xml;
-using System.IO;
 using BobDust.Core.Extensions;
 using BobDust.Rpc.Sockets.Abstractions;
 
@@ -36,7 +34,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 		{
 		}
 
-		public override void Write(System.IO.BinaryWriter writer)
+		public override void Write(BinaryWriter writer)
 		{
 			var builder = new StringBuilder();
 			var settings = new XmlWriterSettings { OmitXmlDeclaration = true };
@@ -53,7 +51,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 				{
 					xmlWriter.WriteStartElement(XmlNames.Exception);
 					xmlWriter.WriteAttributeString(XmlNames.Type, Exception.GetType().AssemblyQualifiedName);
-					xmlWriter.WriteBinary(Exception);
+					xmlWriter.WriteObject(Exception);
 					xmlWriter.WriteEndElement();
 				}
 				xmlWriter.WriteEndElement();
@@ -61,7 +59,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 			writer.Write(builder.ToString());
 		}
 
-		public override void Read(System.IO.BinaryReader reader)
+		public override void Read(BinaryReader reader)
 		{
 			var xml = reader.ReadString();
 			using (var stringReader = new StringReader(xml))
@@ -89,7 +87,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 							{
 								xmlReader.Read();
 							}
-							Exception = (Exception)xmlReader.ReadBinary();
+							Exception = xmlReader.ReadObject<Exception>();
 						}
 					}
 				}

@@ -7,26 +7,51 @@ namespace BobDust.Rpc.Sockets.Builders
 {
 	public class ServerFactory
 	{
-		private static readonly ServerFactory _instance = new ServerFactory();
+		private static readonly ServerFactory _instance = new(Settings.Default);
 
 		public static ServerFactory Default { get { return _instance; } }
 
-		private ConcurrentDictionary<int, object> _objects;
+		private static readonly ConcurrentDictionary<int, ServerFactory> _instances = new ConcurrentDictionary<int, ServerFactory>();
 
-		private ServerFactory()
+		private readonly ConcurrentDictionary<int, object> _objects;
+
+		private readonly Settings _settings;
+
+		private ServerFactory(Settings settings)
 		{
 			_objects = new ConcurrentDictionary<int, object>();
+			_settings = settings;
+		}
+
+		public static IServer Listen(int port)
+		{
+			ServerFactory? instance;
+			if (!_instances.TryGetValue(port, out instance))
+			{
+				_instances[port] = instance = Default;
+			}
+			return instance.Get(port, instance.BuildServer);
+		}
+
+		public static ServerFactory WithSettings(Settings settings)
+		{
+			return new ServerFactory(settings);
+		}
+
+		public IServer Bind(int port)
+		{
+			return Get(port, BuildServer);
 		}
 
 		private IServer Get(int port, Func<int, IServer> buildServer)
 		{
 			var key = port;
 			var server = default(IServer);
-			lock(_objects)
+			lock (_objects)
 			{
 				if (_objects.ContainsKey(key))
 				{
-					 server = (IServer)_objects[key];
+					server = (IServer)_objects[key];
 				}
 				else
 				{
@@ -47,12 +72,8 @@ namespace BobDust.Rpc.Sockets.Builders
 
 		public IServer<TExecutor> Get<TExecutor>(int port) where TExecutor : class
 		{
+			_instances[port] = this;
 			return (IServer<TExecutor>)Get(port, (p) => BuildServer<TExecutor>(p, typeof(TExecutor)) ?? throw new NotSupportedException($"Server for executor type {typeof(TExecutor).Name} is not supported."));
-		}
-
-		public static IServer Listen(int port)
-		{
-			return _instance.Get(port, _instance.BuildServer);
 		}
 
 		private IServer BuildServer(int port)
@@ -78,7 +99,7 @@ namespace BobDust.Rpc.Sockets.Builders
 
 		private ICommand BuildCommand(byte[] bytes)
 		{
-			return BinarySequence.FromBytes<BinaryCommand>(bytes);
+			return Helpers.BuildCommandFromBytes(_settings)(bytes);
 		}
 	}
 }

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <!-- <ProjectReference Include="..\BobDust.Rpc.Sockets\BobDust.Rpc.Sockets.csproj" /> -->
-    <PackageReference Include="BobDust.Rpc.Sockets" />
+    <ProjectReference Include="..\BobDust.Rpc.Sockets\BobDust.Rpc.Sockets.csproj" />
+    <!-- <PackageReference Include="BobDust.Rpc.Sockets" /> -->
   </ItemGroup>
 </Project>

@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Xml;
+﻿using System.Xml;
 using System.Xml.Serialization;
 using System.Collections;
-using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 namespace BobDust.Core.Extensions
 {
@@ -134,5 +131,16 @@ namespace BobDust.Core.Extensions
          }
       }
 
+      public static void WriteObject(this XmlWriter writer, object obj)
+      {
+         var serializer = new DataContractSerializer(obj.GetType());
+         serializer.WriteObject(writer, obj);
+      }
+
+      public static T ReadObject<T>(this XmlReader reader)
+      {
+         var serializer = new DataContractSerializer(typeof(T));
+         return (T)serializer.ReadObject(reader);
+      }
    }
 }

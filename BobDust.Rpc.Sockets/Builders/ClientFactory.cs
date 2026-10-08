@@ -9,14 +9,16 @@ namespace BobDust.Rpc.Sockets.Builders
 {
    public class ClientFactory
    {
-      private static readonly ClientFactory _instance = new ClientFactory();
+      private static readonly ClientFactory _instance = new(Settings.Default);
       public static ClientFactory Default { get { return _instance; } }
-
+      private static readonly ConcurrentDictionary<(string Host, int Port), ClientFactory> _instances = new ConcurrentDictionary<(string Host, int Port), ClientFactory>();
       private ConcurrentDictionary<(string Host, int Port), IChannel> _channels;
+      private readonly Settings _settings;
 
-      private ClientFactory()
+      private ClientFactory(Settings settings)
       {
          _channels = new ConcurrentDictionary<(string Host, int Port), IChannel>();
+         _settings = settings;
       }
 
       public T Get<T>(string host, int port)
@@ -26,7 +28,17 @@ namespace BobDust.Rpc.Sockets.Builders
 
       public static async Task<IChannel> ConnectAsync(string host, int port)
       {
-         return await _instance.ConnectChannelAsync(host, port);
+         ClientFactory? instance;
+         if (!_instances.TryGetValue((host, port), out instance))
+         {
+            _instances[(host, port)] = instance = Default;
+         }
+         return await instance.ConnectChannelAsync(host, port);
+      }
+
+      public static ClientFactory WithSettings(Settings settings)
+      {
+         return new ClientFactory(settings);
       }
 
       private IChannel BuildChannel(string host, int port)
@@ -64,6 +76,7 @@ namespace BobDust.Rpc.Sockets.Builders
 
       private IChannel ConnectChannel(string host, int port)
       {
+         _instances[(host, port)] = this;
          return BuildChannel(host, port).Connect();
       }
 
@@ -166,12 +179,12 @@ namespace BobDust.Rpc.Sockets.Builders
 
       private ICommandResult BuildCommandResult(byte[] bytes)
       {
-         return BinarySequence.FromBytes<BinaryCommandResult>(bytes);
+         return Helpers.BuildCommandResultFromBytes(_settings)(bytes);
       }
 
       private ICommand BuildCommand(string contractType, string method, IEnumerable<(string Name, object Value)> parameters)
       {
-         return new BinaryCommand(contractType, method, parameters);
+         return Helpers.BuildCommandFromMethod(_settings)(contractType, method, parameters);
       }
    }
 

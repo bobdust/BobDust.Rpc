@@ -8,7 +8,7 @@ namespace BobDust.Rpc.Sockets.ServerSample
 		static void Main(string[] args)
 		{
 			const int port = 1234;
-			var assistant = ServerFactory.Default.Get<GreetingAssistant>(port);
+			var assistant = ServerFactory.WithSettings(Settings.Json).Get<GreetingAssistant>(port);
 			assistant.Start();
 			ServerFactory.Listen(port).Register<IGratitude, Gratitude>(() => new Gratitude()).Start();
 			Console.WriteLine("Greeting Assistant started.");
