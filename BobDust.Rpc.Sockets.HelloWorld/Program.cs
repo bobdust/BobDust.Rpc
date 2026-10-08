@@ -6,8 +6,8 @@ const int port = 1234;
 var assistant = ClientFactory
     //.WithSettings(Settings.DataContract([typeof(GreetingOptions)]))
     //.WithSettings(Settings.Json)
-    .WithSettings(Settings.Xml)
-    //.Default
+    //.WithSettings(Settings.Xml)
+    .Default
     .Get<IGreetingAssistant>(host, port);
 Console.Write("Your name: ");
 var name = Console.ReadLine();

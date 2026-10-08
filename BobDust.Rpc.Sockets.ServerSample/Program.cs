@@ -11,8 +11,8 @@ namespace BobDust.Rpc.Sockets.ServerSample
 			var assistant = ServerFactory
 				//.WithSettings(Settings.DataContract([typeof(GreetingOptions)]))
 				//.WithSettings(Settings.Json)
-				.WithSettings(Settings.Xml)
-				//.Default
+				//.WithSettings(Settings.Xml)
+				.Default
 				.Get<GreetingAssistant>(port);
 			assistant.Start();
 			ServerFactory.Listen(port).Register<IGratitude, Gratitude>(() => new Gratitude()).Start();

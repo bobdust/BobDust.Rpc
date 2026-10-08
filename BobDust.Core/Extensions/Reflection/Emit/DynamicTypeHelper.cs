@@ -24,13 +24,13 @@ namespace BobDust.Core.Extensions.Reflection.Emit
       {
          // Add a debuggable attribute to the assembly saying to disable optimizations
          Type daType = typeof(DebuggableAttribute);
-         ConstructorInfo daCtor = daType.GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-         CustomAttributeBuilder daBuilder = new CustomAttributeBuilder(daCtor, new object[] {
-            DebuggableAttribute.DebuggingModes.DisableOptimizations | DebuggableAttribute.DebuggingModes.Default});
+         ConstructorInfo daCtor = daType.GetConstructor([typeof(DebuggableAttribute.DebuggingModes)]);
+         CustomAttributeBuilder daBuilder = new CustomAttributeBuilder(daCtor, [
+            DebuggableAttribute.DebuggingModes.DisableOptimizations | DebuggableAttribute.DebuggingModes.Default]);
          assemblyBuilder.SetCustomAttribute(daBuilder);
       }
 
-      private static object DefineDynamicAssembly(this AppDomain domain, string name, string dir = null)
+      private static object DefineDynamicAssembly(this AppDomain domain, string name, bool inMemoryOnly)
       {
          lock (_assemblies)
          {
@@ -42,18 +42,18 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          var assembly = Assembly.GetCallingAssembly();
          var assemblyName = new AssemblyName { Name = name, Version = assembly.GetName().Version };
          AssemblyBuilder assemblyBuilder;
-         if (string.IsNullOrEmpty(dir))
+         if (inMemoryOnly)
          {
-            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
             assemblyBuilder.DisableDebugOptimization();
             _assemblies[name] = assemblyBuilder;
             return assemblyBuilder;
          }
-         assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+         assemblyBuilder = new PersistedAssemblyBuilder(assemblyName, typeof(object).Assembly);
          assemblyBuilder.DisableDebugOptimization();
          dynamic wrapper = new ExpandoObject();
          wrapper.Builder = assemblyBuilder;
-         var fileName = string.Format("{0}.dll", name);
+         var fileName = string.Format("{0}.dll", Path.Combine(Path.GetDirectoryName(assembly.Location), name));
          wrapper.FileName = fileName;
          _assemblies[name] = wrapper;
          return wrapper;
@@ -61,7 +61,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
 
       private static object DefineDynamicAssembly(this AppDomain domain, string name)
       {
-         return domain.DefineDynamicAssembly(name, null);
+         return domain.DefineDynamicAssembly(name, false);
       }
 
       private static ModuleBuilder DefineDynamicModule(object assemblyBuilder)
@@ -113,7 +113,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
 
       private static Type CreateDynamicType(Type baseType, string typeNamespace, Func<string> getTypeName, Action<TypeBuilder> build)
       {
-         var name = string.Format("{0}.Dynamic", typeNamespace);
+         var name = $"{typeNamespace}.Dynamic.{getTypeName()}";
          AssemblyBuilder assemblyBuilder;
          var fileName = string.Empty;
          var obj = AppDomain.CurrentDomain.DefineDynamicAssembly(name);
@@ -128,7 +128,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
             assemblyBuilder = obj as AssemblyBuilder;
          }
          var module = DefineDynamicModule(obj);
-         var typeName = string.Format("{0}.{1}", name, getTypeName());
+         var typeName = name;
          lock (_types)
          {
             if (_types.ContainsKey(typeName))
@@ -140,12 +140,19 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          typeBuilder.CreatePassThroughConstuctors(baseType);
          build(typeBuilder);
          var type = typeBuilder.CreateType();
-         if (!string.IsNullOrEmpty(fileName))
+         if (!string.IsNullOrEmpty(fileName) && assemblyBuilder is PersistedAssemblyBuilder pab)
          {
-            // assemblyBuilder.Save(fileName);
+            pab.Save(fileName);
+            var persistedAssembly = Assembly.LoadFile(fileName);
+            var persistedType = persistedAssembly.GetType(type.FullName);
+            _types[typeName] = persistedType;
+            return persistedType;
          }
-         _types[typeName] = type;
-         return type;
+         else
+         {
+            _types[typeName] = type;
+            return type;
+         }
       }
 
       private static Type CreateDynamicType(Type baseType, Type contractType, Action<MethodInfo, ILGenerator> emit)
