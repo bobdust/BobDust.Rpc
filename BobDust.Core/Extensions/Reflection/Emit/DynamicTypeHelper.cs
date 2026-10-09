@@ -24,7 +24,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
       {
          // Add a debuggable attribute to the assembly saying to disable optimizations
          Type daType = typeof(DebuggableAttribute);
-         ConstructorInfo daCtor = daType.GetConstructor([typeof(DebuggableAttribute.DebuggingModes)]);
+         ConstructorInfo daCtor = daType.GetConstructor([typeof(DebuggableAttribute.DebuggingModes)])!;
          CustomAttributeBuilder daBuilder = new CustomAttributeBuilder(daCtor, [
             DebuggableAttribute.DebuggingModes.DisableOptimizations | DebuggableAttribute.DebuggingModes.Default]);
          assemblyBuilder.SetCustomAttribute(daBuilder);
@@ -53,7 +53,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          assemblyBuilder.DisableDebugOptimization();
          dynamic wrapper = new ExpandoObject();
          wrapper.Builder = assemblyBuilder;
-         var fileName = string.Format("{0}.dll", Path.Combine(Path.GetDirectoryName(assembly.Location), name));
+         var fileName = string.Format("{0}.dll", Path.Combine(Path.GetDirectoryName(assembly.Location)!, name));
          wrapper.FileName = fileName;
          _assemblies[name] = wrapper;
          return wrapper;
@@ -68,8 +68,8 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          {
             dynamic wrapper = assemblyBuilder;
             var fileName = wrapper.FileName;
-            builder = wrapper.Builder as AssemblyBuilder;
-            moduleName = builder.GetName().Name;
+            builder = (wrapper.Builder as AssemblyBuilder)!;
+            moduleName = builder.GetName().Name!;
             lock (_modules)
             {
                if (_modules.ContainsKey(moduleName))
@@ -81,8 +81,8 @@ namespace BobDust.Core.Extensions.Reflection.Emit
             _modules[moduleName] = module;
             return module;
          }
-         builder = assemblyBuilder as AssemblyBuilder;
-         moduleName = builder.GetName().Name;
+         builder = (assemblyBuilder as AssemblyBuilder)!;
+         moduleName = builder.GetName().Name!;
          lock (_modules)
          {
             if (_modules.ContainsKey(moduleName))
@@ -102,7 +102,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          {
             assembly = Assembly.GetCallingAssembly();
          }
-         var typeNamespace = assembly.GetName().Name;
+         var typeNamespace = assembly.GetName().Name!;
          return CreateDynamicType(baseType, typeNamespace, getTypeName, build);
       }
 
@@ -124,7 +124,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          }
          else
          {
-            assemblyBuilder = obj as AssemblyBuilder;
+            assemblyBuilder = (obj as AssemblyBuilder)!;
          }
          var module = DefineDynamicModule(obj);
          var typeName = persisted ? name : $"{name}.{getTypeName()}";
@@ -143,7 +143,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          {
             pab.Save(fileName);
             var persistedAssembly = Assembly.LoadFile(fileName);
-            var persistedType = persistedAssembly.GetType(type.FullName);
+            var persistedType = persistedAssembly.GetType(type.FullName!)!;
             _types[typeName] = persistedType;
             return persistedType;
          }
@@ -158,7 +158,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
       {
          var type = CreateDynamicType(
             baseType,
-            contractType.Namespace,
+            contractType.Namespace!,
             () =>
             {
                return contractType.Name.TrimStart('I');

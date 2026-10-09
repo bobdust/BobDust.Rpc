@@ -12,21 +12,21 @@ var assistant = ClientFactory
     .Get<IGreetingAssistant>(host, port);
 Console.Write("Your name: ");
 var name = Console.ReadLine();
-var words = assistant.Hello(new GreetingOptions { Name = name }, "Nice day");
+var words = assistant.Hello(new GreetingOptions { Name = name ?? string.Empty }, "Nice day");
 Console.WriteLine(words);
 Console.Write("Nickname: ");
 var nickname = Console.ReadLine();
-words = await assistant.HelloAsync(new GreetingOptions { Name = nickname }, "Good day");
+words = await assistant.HelloAsync(new GreetingOptions { Name = nickname ?? string.Empty }, "Good day");
 Console.WriteLine(words);
 await assistant.HelloAndForgetAsync(new GreetingOptions { Name = string.Empty }, "gday");
 Console.WriteLine("HelloAndForgetAsync sent");
 
 var gratitude = (await ClientFactory.ConnectAsync(ip, port)).Mount<IGratitude>().As<IGratitude>();
-words = gratitude.Thanks(new GreetingOptions { Name = name }, "Have a good day");
+words = gratitude.Thanks(new GreetingOptions { Name = name ?? string.Empty }, "Have a good day");
 Console.WriteLine(words);
 gratitude.ThanksAway(new GreetingOptions { Name = string.Empty }, "Have a good day");
 Console.WriteLine("ThanksAway sent");
-words = await gratitude.ThanksAsync(new GreetingOptions { Name = nickname }, "Have a good day");
+words = await gratitude.ThanksAsync(new GreetingOptions { Name = nickname ?? string.Empty }, "Have a good day");
 Console.WriteLine(words);
 await gratitude.ThanksAwayAsync(new GreetingOptions { Name = string.Empty }, "Have a good day");
 Console.WriteLine("ThanksAwayAsync sent");
