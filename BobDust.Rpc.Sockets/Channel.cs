@@ -6,33 +6,23 @@ using System.Collections.Concurrent;
 
 namespace BobDust.Rpc.Sockets
 {
-	class Channel : ExceptionHandler, IChannel
+	class Channel(
+		string host,
+		int port,
+		Func<string, string, IEnumerable<(string, object)>, ICommand> commandFactory,
+		Func<byte[], ICommandResult> commandResultFactory,
+		Func<Type, Func<ICommand, ICommandResult>, Func<ICommand, Task<ICommandResult>>, object> clientFactory
+		) : ExceptionHandler, IChannel
 	{
-		private readonly string _host;
-		private readonly int _port;
-		private readonly Func<string, string, IEnumerable<(string, object)>, ICommand> _commandFactory;
-		private readonly Func<byte[], ICommandResult> _commandResultFactory;
-		private readonly Func<Type, Func<ICommand, ICommandResult>, Func<ICommand, Task<ICommandResult>>, object> _clientFactory;
+		private readonly string _host = host;
+		private readonly int _port = port;
+		private readonly Func<string, string, IEnumerable<(string, object)>, ICommand> _commandFactory = commandFactory;
+		private readonly Func<byte[], ICommandResult> _commandResultFactory = commandResultFactory;
+		private readonly Func<Type, Func<ICommand, ICommandResult>, Func<ICommand, Task<ICommandResult>>, object> _clientFactory = clientFactory;
 		private TcpClient? _client;
 		private CommandPipeline? _pipeline;
 		public bool IsDisposed { get; private set; }
-		private ConcurrentDictionary<Type, object> _clients;
-
-		public Channel(
-			string host,
-			int port,
-			Func<string, string, IEnumerable<(string, object)>, ICommand> commandFactory,
-			Func<byte[], ICommandResult> commandResultFactory,
-			Func<Type, Func<ICommand, ICommandResult>, Func<ICommand, Task<ICommandResult>>, object> clientFactory
-		)
-		{
-			_host = host;
-			_port = port;
-			_commandFactory = commandFactory;
-			_commandResultFactory = commandResultFactory;
-			_clientFactory = clientFactory;
-			_clients = new ConcurrentDictionary<Type, object>();
-		}
+		private ConcurrentDictionary<Type, object> _clients = new ConcurrentDictionary<Type, object>();
 
 		protected ICommandResult Send(ICommand command)
 		{
@@ -83,11 +73,13 @@ namespace BobDust.Rpc.Sockets
 		{
 			if (_client is null || IsDisposed)
 			{
-				var serverEndpoint = new IPEndPoint(IPAddress.Parse(_host), _port);
-				_client = new TcpClient(serverEndpoint.AddressFamily);
-				_client.Connect(serverEndpoint);
+				_client = new TcpClient();
+				_client.Connect(_host, _port);
 				var sendSocket = _client.Client;
-				var receiveSocket = new Socket(sendSocket.AddressFamily, sendSocket.SocketType, sendSocket.ProtocolType);
+				var receiveSocket = new Socket(sendSocket.AddressFamily, sendSocket.SocketType, sendSocket.ProtocolType)
+				{
+					DualMode = true
+				};
 				receiveSocket.Connect(sendSocket.RemoteEndPoint!);
 				_pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize)
 				{
@@ -105,11 +97,13 @@ namespace BobDust.Rpc.Sockets
 		{
 			if (_client is null || IsDisposed)
 			{
-				var serverEndpoint = new IPEndPoint(IPAddress.Parse(_host), _port);
-				_client = new TcpClient(serverEndpoint.AddressFamily);
-				await _client.ConnectAsync(serverEndpoint);
+				_client = new TcpClient();
+				await _client.ConnectAsync(_host, _port);
 				var sendSocket = _client.Client;
-				var receiveSocket = new Socket(sendSocket.AddressFamily, sendSocket.SocketType, sendSocket.ProtocolType);
+				var receiveSocket = new Socket(sendSocket.AddressFamily, sendSocket.SocketType, sendSocket.ProtocolType)
+				{
+					DualMode = true
+				};
 				await receiveSocket.ConnectAsync(sendSocket.RemoteEndPoint!);
 				_pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize)
 				{

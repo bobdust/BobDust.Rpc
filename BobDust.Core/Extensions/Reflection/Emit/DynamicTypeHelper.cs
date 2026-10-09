@@ -44,8 +44,8 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          AssemblyBuilder assemblyBuilder;
          if (inMemoryOnly)
          {
-            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
-            assemblyBuilder.DisableDebugOptimization();
+            assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+            // assemblyBuilder.DisableDebugOptimization();
             _assemblies[name] = assemblyBuilder;
             return assemblyBuilder;
          }
@@ -57,11 +57,6 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          wrapper.FileName = fileName;
          _assemblies[name] = wrapper;
          return wrapper;
-      }
-
-      private static object DefineDynamicAssembly(this AppDomain domain, string name)
-      {
-         return domain.DefineDynamicAssembly(name, false);
       }
 
       private static ModuleBuilder DefineDynamicModule(object assemblyBuilder)
@@ -111,12 +106,16 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          return CreateDynamicType(baseType, typeNamespace, getTypeName, build);
       }
 
-      private static Type CreateDynamicType(Type baseType, string typeNamespace, Func<string> getTypeName, Action<TypeBuilder> build)
+      private static Type CreateDynamicType(
+         Type baseType,
+         string typeNamespace,
+         Func<string> getTypeName, Action<TypeBuilder> build,
+         bool persisted = false)
       {
-         var name = $"{typeNamespace}.Dynamic.{getTypeName()}";
+         var name = $"{typeNamespace}.Dynamic{(persisted ? $".{getTypeName()}" : string.Empty)}";
          AssemblyBuilder assemblyBuilder;
          var fileName = string.Empty;
-         var obj = AppDomain.CurrentDomain.DefineDynamicAssembly(name);
+         var obj = AppDomain.CurrentDomain.DefineDynamicAssembly(name, !persisted);
          if (obj is ExpandoObject)
          {
             dynamic objDynamic = obj;
@@ -128,7 +127,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
             assemblyBuilder = obj as AssemblyBuilder;
          }
          var module = DefineDynamicModule(obj);
-         var typeName = name;
+         var typeName = persisted ? name : $"{name}.{getTypeName()}";
          lock (_types)
          {
             if (_types.ContainsKey(typeName))
