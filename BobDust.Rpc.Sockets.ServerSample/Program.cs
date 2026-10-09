@@ -10,9 +10,9 @@ namespace BobDust.Rpc.Sockets.ServerSample
 			const int port = 1234;
 			var assistant = ServerFactory
 				//.WithSettings(Settings.DataContract([typeof(GreetingOptions)]))
-				.WithSettings(Settings.Json)
+				//.WithSettings(Settings.Json)
 				//.WithSettings(Settings.Xml)
-				//.Default
+				.Default
 				.Get<GreetingAssistant>(port);
 			assistant.Start();
 			ServerFactory.Listen(port).Register<IGratitude, Gratitude>(() => new Gratitude()).Start();

@@ -6,9 +6,9 @@ const string host = "localhost";
 const int port = 1234;
 var assistant = ClientFactory
     //.WithSettings(Settings.DataContract([typeof(GreetingOptions)]))
-    .WithSettings(Settings.Json)
+    //.WithSettings(Settings.Json)
     //.WithSettings(Settings.Xml)
-    //.Default
+    .Default
     .Get<IGreetingAssistant>(host, port);
 Console.Write("Your name: ");
 var name = Console.ReadLine();

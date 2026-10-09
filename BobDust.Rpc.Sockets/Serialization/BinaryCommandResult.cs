@@ -12,7 +12,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 		{
 		}
 
-		public BinaryCommandResult(string operationName, object returnValue) : this(operationName)
+		public BinaryCommandResult(string operationName, object? returnValue) : this(operationName)
 		{
 			ReturnValue = returnValue;
 		}

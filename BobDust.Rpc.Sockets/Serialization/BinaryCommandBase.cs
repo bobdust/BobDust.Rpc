@@ -26,14 +26,18 @@ namespace BobDust.Rpc.Sockets.Serialization
 
 		public override void Write(Stream stream)
 		{
-			var formatter = new BinaryFormatter();
-			formatter.Serialize(stream, this);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+            var formatter = new BinaryFormatter();
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
+            formatter.Serialize(stream, this);
 		}
 
 		public override void Read(Stream stream)
 		{
-			var formatter = new BinaryFormatter();
-			var deserialized = (BinaryCommandBase)formatter.Deserialize(stream);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+            var formatter = new BinaryFormatter();
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
+            var deserialized = (BinaryCommandBase)formatter.Deserialize(stream);
 			CopyFrom(deserialized);
 		}
 	}
