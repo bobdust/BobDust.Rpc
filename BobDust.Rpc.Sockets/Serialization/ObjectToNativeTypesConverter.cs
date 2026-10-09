@@ -35,7 +35,7 @@ public class ObjectToNativeTypesConverter : JsonConverter<object>
         };
     }
 
-    private object ReadObject(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    private object? ReadObject(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         using var jsonDoc = JsonDocument.ParseValue(ref reader);
         var root = jsonDoc.RootElement;

@@ -104,7 +104,7 @@ namespace BobDust.Rpc.Sockets
 			{
 				return package;
 			}
-			return new Package(Token, Index, Count - 1, Data.Concat(package.Data).ToArray());
+			return new Package(Token, Index, Count - 1, [.. Data ?? [], .. package.Data ?? []]);
 		}
 
 		private void Write(BinaryWriter writer)

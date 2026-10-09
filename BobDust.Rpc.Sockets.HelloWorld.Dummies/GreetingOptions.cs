@@ -9,6 +9,6 @@ namespace BobDust.Rpc.Sockets.HelloWorld
 	public class GreetingOptions
 	{
 		[DataMember]
-		public required string Name { get; set; }
+		public string? Name { get; set; }
 	}
 }

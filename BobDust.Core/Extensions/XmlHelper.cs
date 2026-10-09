@@ -17,7 +17,7 @@ namespace BobDust.Core.Extensions
       public static object Deserialize(this XmlReader reader, Type type)
       {
          var serializer = new XmlSerializer(type);
-         var obj = serializer.Deserialize(reader);
+         var obj = serializer.Deserialize(reader)!;
          return obj;
       }
 
@@ -33,7 +33,8 @@ namespace BobDust.Core.Extensions
       {
          var type = obj.GetType();
          var interfaces = type.GetInterfaces();
-         if (type.IsValueType || type.IsPrimitive || type == typeof(string))
+#pragma warning disable SYSLIB0050 // Type or member is obsolete
+            if (type.IsValueType || type.IsPrimitive || type == typeof(string))
          {
             writer.WriteAttributeString(XmlNames.Type, type.AssemblyQualifiedName);
             writer.WriteValue(obj);
@@ -45,7 +46,7 @@ namespace BobDust.Core.Extensions
          }
          else if (interfaces.Contains(typeof(IEnumerable)))
          {
-            var collection = obj as IEnumerable;
+            var collection = (obj as IEnumerable)!;
             var enumerator = collection.GetEnumerator();
             if (enumerator.MoveNext())
             {
@@ -70,7 +71,7 @@ namespace BobDust.Core.Extensions
             }
             else if (type.IsGenericType)
             {
-               var newType = typeof(List<>).MakeGenericType(type.GetGenericArguments().FirstOrDefault());
+               var newType = typeof(List<>).MakeGenericType(type.GetGenericArguments().First());
                writer.WriteAttributeString(XmlNames.Type, newType.AssemblyQualifiedName);
             }
             else
@@ -78,12 +79,14 @@ namespace BobDust.Core.Extensions
                writer.WriteAttributeString(XmlNames.Type, type.AssemblyQualifiedName);
             }
          }
-      }
+#pragma warning restore SYSLIB0050 // Type or member is obsolete
+        }
 
       public static object Read(this XmlReader reader, Type type)
       {
          var interfaces = type.GetInterfaces();
-         if (type.IsValueType || type.IsPrimitive || type == typeof(string))
+#pragma warning disable SYSLIB0050 // Type or member is obsolete
+            if (type.IsValueType || type.IsPrimitive || type == typeof(string))
          {
             var value = reader.ReadString();
             return Convert.ChangeType(value, type);
@@ -95,25 +98,28 @@ namespace BobDust.Core.Extensions
          }
          else if (interfaces.Contains(typeof(IEnumerable)))
          {
-            var collection = type.GetConstructor(Type.EmptyTypes).Invoke(Enumerable.Empty<object>().ToArray());
+            var collection = type.GetConstructor(Type.EmptyTypes)!.Invoke(Enumerable.Empty<object>().ToArray());
             var itemType = type.GetGenericArguments().FirstOrDefault();
             while (reader.IsStartElement(XmlNames.Item) || reader.ReadToFollowing(XmlNames.Item))
             {
                reader.Read();
-               var item = reader.Deserialize(itemType);
+               var item = reader.Deserialize(itemType!);
                ((IList)collection).Add(item);
             }
             return collection;
          }
-         return null;
+#pragma warning restore SYSLIB0050 // Type or member is obsolete
+            return null!;
       }
 
       public static void WriteBinary(this XmlWriter writer, object obj)
       {
          using (var stream = new MemoryStream())
          {
-            var formatter = new BinaryFormatter();
-            formatter.Serialize(stream, obj);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+                var formatter = new BinaryFormatter();
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
+                formatter.Serialize(stream, obj);
             var bytes = stream.ToArray();
             var text = Convert.ToBase64String(bytes);
             writer.WriteString(text);
@@ -126,8 +132,10 @@ namespace BobDust.Core.Extensions
          var bytes = Convert.FromBase64String(text);
          using (var stream = new MemoryStream(bytes))
          {
-            var formatter = new BinaryFormatter();
-            return formatter.Deserialize(stream);
+#pragma warning disable SYSLIB0011 // Type or member is obsolete
+                var formatter = new BinaryFormatter();
+#pragma warning restore SYSLIB0011 // Type or member is obsolete
+                return formatter.Deserialize(stream);
          }
       }
 
@@ -140,7 +148,7 @@ namespace BobDust.Core.Extensions
       public static T ReadObject<T>(this XmlReader reader)
       {
          var serializer = new DataContractSerializer(typeof(T));
-         return (T)serializer.ReadObject(reader);
+         return (T)serializer.ReadObject(reader)!;
       }
    }
 }
