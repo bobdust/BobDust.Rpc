@@ -11,19 +11,24 @@ namespace BobDust.Rpc.Sockets.Builders
    {
       private static readonly ClientFactory _instance = new(Settings.Default);
       public static ClientFactory Default { get { return _instance; } }
+
+      private static bool KeyCompare((string Host, int Port) thisKey, (string Host, int Port) thatKey)
+         => thisKey.Port == thatKey.Port && TcpClientHelper.AreSame(thisKey.Host, thatKey.Host);
+
+      private static int KeyHashCode((string Host, int Port) key) => key.Port.GetHashCode();
+
+      private static EqualityComparer<(string Host, int Port)> CreateComparer()
+         => EqualityComparer<(string Host, int Port)>.Create(KeyCompare, KeyHashCode);
+
       private static readonly ConcurrentDictionary<(string Host, int Port), ClientFactory> _instances
-         = new ConcurrentDictionary<(string Host, int Port), ClientFactory>(
-            EqualityComparer<(string Host, int Port)>.Create(
-               (thisKey, thatKey) => thisKey.Port == thatKey.Port
-                  &&
-                  TcpClientHelper.AreSame(thisKey.Host, thatKey.Host),
-               key => key.Port));
+         = new ConcurrentDictionary<(string Host, int Port), ClientFactory>(CreateComparer());
+
       private ConcurrentDictionary<(string Host, int Port), IChannel> _channels;
       private readonly Settings _settings;
 
       private ClientFactory(Settings settings)
       {
-         _channels = new ConcurrentDictionary<(string Host, int Port), IChannel>();
+         _channels = new ConcurrentDictionary<(string Host, int Port), IChannel>(CreateComparer());
          _settings = settings;
       }
 
