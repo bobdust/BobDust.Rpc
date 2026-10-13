@@ -9,8 +9,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageVersion Include="BobDust.Core" Version="1.0.0" />
-        <PackageVersion Include="BobDust.Rpc.Sockets" Version="1.0.0" />
-        <PackageVersion Include="BobDust.Rpc.Sockets.Abstractions" Version="1.0.0" />
+        <PackageVersion Include="BobDust.Core" Version="1.0.1" />
+        <PackageVersion Include="BobDust.Rpc.Sockets" Version="1.0.1" />
+        <PackageVersion Include="BobDust.Rpc.Sockets.Abstractions" Version="1.0.1" />
     </ItemGroup>
 </Project>
