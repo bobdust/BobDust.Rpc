@@ -150,5 +150,11 @@ namespace BobDust.Core.Extensions
          var serializer = new DataContractSerializer(typeof(T));
          return (T)serializer.ReadObject(reader)!;
       }
+
+      public static object ReadObject(this XmlReader reader, Type type)
+      {
+         var serializer = new DataContractSerializer(type);
+         return serializer.ReadObject(reader)!;
+      }
    }
 }

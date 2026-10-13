@@ -5,7 +5,7 @@ const string ip = "127.0.0.1";
 const string host = "localhost";
 const int port = 1234;
 var assistant = ClientFactory
-    //.WithSettings(Settings.DataContract([typeof(GreetingOptions)]))
+    //.WithSettings(Settings.DataContract([typeof(GreetingOptions), typeof(GreetingResult)]))
     //.WithSettings(Settings.Json)
     //.WithSettings(Settings.Xml)
     .Default

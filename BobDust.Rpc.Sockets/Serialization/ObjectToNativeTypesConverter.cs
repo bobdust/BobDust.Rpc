@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -9,17 +8,9 @@ public class ObjectToNativeTypesConverter : JsonConverter<object>
     private const string TypePropertyName = "$type";
     private const string PayloadPropertyName = "$payload";
 
-    private static bool ShouldIndicateType(Type type)
-    {
-        ObjectIndicatorAttribute? attribute = type.GetCustomAttribute<ObjectIndicatorAttribute>();
-
-        if (attribute != null)
-        {
-            return true;
-        }
-
-        return false;
-    }
+#pragma warning disable SYSLIB0050 // Type or member is obsolete
+    private static bool ShouldIndicateType(Type type) => type.IsSerializable;
+#pragma warning restore SYSLIB0050 // Type or member is obsolete
 
     public override object? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {

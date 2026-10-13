@@ -78,7 +78,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 					{
 						xmlReader.Read();
 					}
-					Exception = xmlReader.ReadObject<Exception>();
+					Exception = (Exception)xmlReader.ReadObject(type!);
 				}
 			}
 		}

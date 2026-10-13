@@ -6,15 +6,15 @@ namespace BobDust.Rpc.Sockets.ServerSample
 	{
 		public GreetingResult? Thanks(GreetingOptions options, string gratitudeFollowup)
 		{
-			return default;
-			return new GreetingResult($"Thanks, {options?.Name}. {gratitudeFollowup}!");
+			// return default;
+			return new GreetingResult{Result = $"Thanks, {options?.Name}. {gratitudeFollowup}!"};
 		}
 
 		public Task ThanksAwayAsync(GreetingOptions options, string gratitudeFollowup) => ThanksAsync(options, gratitudeFollowup);
 
 		public async Task<GreetingResult?> ThanksAsync(GreetingOptions options, string gratitudeFollowup)
 		{
-			return default;
+			// return default;
 			async IAsyncEnumerable<string> AsyncThanks()
 			{
 				yield return "Thanks";
@@ -27,7 +27,7 @@ namespace BobDust.Rpc.Sockets.ServerSample
 			{
 				builder.Append(part);
 			}
-			return new GreetingResult(builder.ToString());
+			return new GreetingResult{ Result = builder.ToString()};
 		}
 
 		public void ThanksAway(GreetingOptions options, string gratitudeFollowup)

@@ -1,3 +1,11 @@
+using System.Runtime.Serialization;
+
 namespace BobDust.Rpc.Sockets.HelloWorld.Dummies;
 
-public record GreetingResult(string Result);
+[DataContract, KnownType(typeof(NotImplementedException))]
+[Serializable]
+public record GreetingResult
+{
+    [DataMember]
+    public string? Result { get; set; }
+}

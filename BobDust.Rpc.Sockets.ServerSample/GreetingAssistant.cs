@@ -26,7 +26,7 @@ namespace BobDust.Rpc.Sockets.ServerSample
 
 		public GreetingResult Hello(GreetingOptions options, string greetingFollowup)
 		{
-			return new GreetingResult($"Hello, {options?.Name}. {greetingFollowup}!");
+			return new GreetingResult{Result = $"Hello, {options?.Name}. {greetingFollowup}!"};
 		}
 
         public Task HelloAndForgetAsync(GreetingOptions options, string greetingFollowup) => HelloAsync(options, greetingFollowup);
@@ -45,7 +45,7 @@ namespace BobDust.Rpc.Sockets.ServerSample
 			{
 				builder.Append(part);
 			}
-			return new GreetingResult(builder.ToString());
+			return new GreetingResult{Result = builder.ToString()};
         }
     }
 }

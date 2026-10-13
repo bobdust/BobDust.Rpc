@@ -15,7 +15,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 			_jsonSerializerOptions = new JsonSerializerOptions
 			{
 				IncludeFields = true, // Required for tuples
-				Converters = { new ObjectToNativeTypesConverter() }
+				Converters = { new SafeExceptionConverter(), new ObjectToNativeTypesConverter() }
 			};
 
 		}
