@@ -7,19 +7,16 @@ namespace BobDust.Rpc.Sockets
 	public abstract class Client : ExceptionHandler
 	{
 		private readonly Func<string, string, IEnumerable<(string, object)>, ICommand> _commandFactory;
-		private readonly Func<byte[], ICommandResult> _commandResultFactory;
 		private readonly Func<ICommand, ICommandResult> _send;
 		private readonly Func<ICommand, Task<ICommandResult>> _sendAsync;
 
 		protected Client(
 			Func<string, string, IEnumerable<(string, object)>, ICommand> commandFactory, 
-			Func<byte[], ICommandResult> commandResultFactory,
 			Func<ICommand, ICommandResult> send,
 			Func<ICommand, Task<ICommandResult>> sendAsync
 		)
 		{
 			_commandFactory = commandFactory;
-			_commandResultFactory = commandResultFactory;
 			_send = send;
 			_sendAsync = sendAsync;
 		}

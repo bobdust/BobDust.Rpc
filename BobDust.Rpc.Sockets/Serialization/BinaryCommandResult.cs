@@ -17,6 +17,11 @@ namespace BobDust.Rpc.Sockets.Serialization
 			ReturnValue = returnValue;
 		}
 
+		public BinaryCommandResult(string operationName, Exception exception) : this(operationName)
+		{
+			Exception = exception;
+		}
+
 		public object? ReturnValue { get; private set; }
 
 		public Exception? Exception { get; private set; }

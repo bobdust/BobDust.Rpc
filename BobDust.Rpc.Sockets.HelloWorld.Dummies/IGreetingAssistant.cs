@@ -1,9 +1,12 @@
-﻿namespace BobDust.Rpc.Sockets.HelloWorld
+﻿namespace BobDust.Rpc.Sockets.HelloWorld.Dummies
 {
 	public interface IGreetingAssistant
 	{
-		string Hello(GreetingOptions options, string greetingFollowup);
-		Task<string> HelloAsync(GreetingOptions options, string greetingFollowup);
+		GreetingResult Hello(GreetingOptions options, string greetingFollowup);
+		void Error();
+		Task ErrorAsync();
+		Task<GreetingResult> HelloAsync(GreetingOptions options, string greetingFollowup);
 		Task HelloAndForgetAsync(GreetingOptions options, string greetingFollowup);
 	}
+
 }

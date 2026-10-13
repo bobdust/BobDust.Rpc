@@ -1,5 +1,4 @@
 ﻿using System.Net.Sockets;
-using System.Net;
 using BobDust.Core.ExceptionHandling;
 using BobDust.Rpc.Sockets.Abstractions;
 using System.Collections.Concurrent;
@@ -9,14 +8,12 @@ namespace BobDust.Rpc.Sockets
 	class Channel(
 		string host,
 		int port,
-		Func<string, string, IEnumerable<(string, object)>, ICommand> commandFactory,
 		Func<byte[], ICommandResult> commandResultFactory,
 		Func<Type, Func<ICommand, ICommandResult>, Func<ICommand, Task<ICommandResult>>, object> clientFactory
 		) : ExceptionHandler, IChannel
 	{
 		private readonly string _host = host;
 		private readonly int _port = port;
-		private readonly Func<string, string, IEnumerable<(string, object)>, ICommand> _commandFactory = commandFactory;
 		private readonly Func<byte[], ICommandResult> _commandResultFactory = commandResultFactory;
 		private readonly Func<Type, Func<ICommand, ICommandResult>, Func<ICommand, Task<ICommandResult>>, object> _clientFactory = clientFactory;
 		private TcpClient? _client;

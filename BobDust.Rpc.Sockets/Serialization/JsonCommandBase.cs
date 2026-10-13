@@ -4,10 +4,8 @@ namespace BobDust.Rpc.Sockets.Serialization
 {
 	abstract class JsonCommandBase : BinarySequence
 	{
-		private readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions
-		{
-			IncludeFields = true // Required for tuples
-		};
+		private readonly JsonSerializerOptions _jsonSerializerOptions;
+
 		public string? ContractType { get; set; }
 
 		public string? OperationName { get; set; }

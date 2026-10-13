@@ -1,7 +1,8 @@
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using BobDust.Rpc.Sockets.Serialization;
+
+namespace BobDust.Rpc.Sockets.Serialization;
 
 public class ObjectToNativeTypesConverter : JsonConverter<object>
 {

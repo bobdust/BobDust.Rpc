@@ -7,6 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\BobDust.Rpc.Sockets.Abstractions\BobDust.Rpc.Sockets.Abstractions.csproj" />
     <PackageReference Include="System.Runtime.Serialization.Formatters" />
+    <PackageReference Include="System.Formats.Nrbf" />
   </ItemGroup>
 
 </Project>

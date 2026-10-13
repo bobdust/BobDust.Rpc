@@ -74,7 +74,7 @@ namespace BobDust.Rpc.Sockets.Builders
          {
             return channel;
          }
-         channel = new Channel(host, port, BuildCommand, BuildCommandResult, BuildClient);
+         channel = new Channel(host, port, BuildCommandResult, BuildClient);
          _channels[key] = channel;
          return channel;
       }
@@ -97,7 +97,7 @@ namespace BobDust.Rpc.Sockets.Builders
          var invoke = baseType.GetMethod("Invoke", BindingFlags.Instance | BindingFlags.NonPublic);
          var invokeAsync = baseType.GetMethod("InvokeAsync", BindingFlags.Instance | BindingFlags.NonPublic);
          var type = baseType.Implement(contractType, (method) => method.IsAsync() ? invokeAsync! : invoke!, EmitSyncBody, EmitAsyncBody);
-         var constructor = type.GetConstructor([typeof(Func<string, string, IEnumerable<(string Name, object Value)>, ICommand>), typeof(Func<byte[], ICommandResult>), typeof(Func<ICommand, ICommandResult>), typeof(Func<ICommand, Task<ICommandResult>>)]);
+         var constructor = type.GetConstructor([typeof(Func<string, string, IEnumerable<(string Name, object Value)>, ICommand>), typeof(Func<ICommand, ICommandResult>), typeof(Func<ICommand, Task<ICommandResult>>)]);
          if (constructor == null)
          {
             throw new InvalidOperationException($"Constructor not found for type {type.FullName}");
@@ -105,8 +105,7 @@ namespace BobDust.Rpc.Sockets.Builders
          try
          {
             Func<string, string, IEnumerable<(string Name, object Value)>, ICommand> commandFactory = BuildCommand;
-            Func<byte[], ICommandResult> commandResultFactory = BuildCommandResult;
-            var instance = constructor.Invoke([commandFactory, commandResultFactory, send, sendAsync]);
+            var instance = constructor.Invoke([commandFactory, send, sendAsync]);
             return instance;
          }
          catch (Exception ex)

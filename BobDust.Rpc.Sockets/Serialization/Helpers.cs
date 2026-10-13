@@ -19,45 +19,39 @@ public static class Helpers
     public static Func<byte[], ICommand> BuildCommandFromBytes(Settings settings)
     {
         SetKnownTypes(settings);
-#pragma warning disable CS0618 // Type or member is obsolete
         return settings.DataFormat switch
         {
             DataFormatType.DataContract => BinarySequence.FromBytes<DataContractCommand>,
-            DataFormatType.Binary => BinarySequence.FromBytes<BinaryCommand>,
+            DataFormatType.Binary => BinarySequence.FromBytes<NrbfCommand>,
             DataFormatType.Xml => BinarySequence.FromBytes<XmlCommand>,
             DataFormatType.Json => BinarySequence.FromBytes<JsonCommand>,
             _ => throw new NotSupportedException($"Data format {settings.DataFormat} is not supported.")
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     public static Func<byte[], ICommandResult> BuildCommandResultFromBytes(Settings settings)
     {
         SetKnownTypes(settings);
-#pragma warning disable CS0618 // Type or member is obsolete
         return settings.DataFormat switch
         {
             DataFormatType.DataContract => BinarySequence.FromBytes<DataContractCommandResult>,
-            DataFormatType.Binary => BinarySequence.FromBytes<BinaryCommandResult>,
+            DataFormatType.Binary => BinarySequence.FromBytes<NrbfCommandResult>,
             DataFormatType.Xml => BinarySequence.FromBytes<XmlCommandResult>,
             DataFormatType.Json => BinarySequence.FromBytes<JsonCommandResult>,
             _ => throw new NotSupportedException($"Data format {settings.DataFormat} is not supported.")
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 
     public static Func<string, string, IEnumerable<(string Name, object Value)>, ICommand> BuildCommandFromMethod(Settings settings)
     {
         SetKnownTypes(settings);
-#pragma warning disable CS0618 // Type or member is obsolete
         return settings.DataFormat switch
         {
             DataFormatType.DataContract => (contractType, method, parameters) => new DataContractCommand(contractType, method, parameters),
-            DataFormatType.Binary => (contractType, method, parameters) => new BinaryCommand(contractType, method, parameters),
+            DataFormatType.Binary => (contractType, method, parameters) => new NrbfCommand(contractType, method, parameters),
             DataFormatType.Xml => (contractType, method, parameters) => new XmlCommand(contractType, method, parameters),
             DataFormatType.Json => (contractType, method, parameters) => new JsonCommand(contractType, method, parameters),
             _ => throw new NotSupportedException($"Data format {settings.DataFormat} is not supported.")
         };
-#pragma warning restore CS0618 // Type or member is obsolete
     }
 }

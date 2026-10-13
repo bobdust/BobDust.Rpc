@@ -1,18 +1,20 @@
-﻿using BobDust.Rpc.Sockets.HelloWorld;
+﻿using BobDust.Rpc.Sockets.HelloWorld.Dummies;
 
 namespace BobDust.Rpc.Sockets.ServerSample
 {
 	public class Gratitude : IGratitude
 	{
-		public string Thanks(GreetingOptions options, string gratitudeFollowup)
+		public GreetingResult? Thanks(GreetingOptions options, string gratitudeFollowup)
 		{
-			return $"Thanks, {options?.Name}. {gratitudeFollowup}!";
+			return default;
+			return new GreetingResult($"Thanks, {options?.Name}. {gratitudeFollowup}!");
 		}
 
-        public Task ThanksAwayAsync(GreetingOptions options, string gratitudeFollowup) => ThanksAsync(options, gratitudeFollowup);
+		public Task ThanksAwayAsync(GreetingOptions options, string gratitudeFollowup) => ThanksAsync(options, gratitudeFollowup);
 
-        public async Task<string> ThanksAsync(GreetingOptions options, string gratitudeFollowup)
-        {
+		public async Task<GreetingResult?> ThanksAsync(GreetingOptions options, string gratitudeFollowup)
+		{
+			return default;
 			async IAsyncEnumerable<string> AsyncThanks()
 			{
 				yield return "Thanks";
@@ -21,16 +23,16 @@ namespace BobDust.Rpc.Sockets.ServerSample
 				yield return gratitudeFollowup;
 			}
 			var builder = new System.Text.StringBuilder();
-            await foreach (var part in AsyncThanks())
+			await foreach (var part in AsyncThanks())
 			{
 				builder.Append(part);
 			}
-			return builder.ToString();
-        }
+			return new GreetingResult(builder.ToString());
+		}
 
-        public void ThanksAway(GreetingOptions options, string gratitudeFollowup)
-        {
-            Thanks(options, gratitudeFollowup);
-        }
-    }
+		public void ThanksAway(GreetingOptions options, string gratitudeFollowup)
+		{
+			Thanks(options, gratitudeFollowup);
+		}
+	}
 }

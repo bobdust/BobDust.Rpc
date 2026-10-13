@@ -5,6 +5,7 @@
 
     <ItemGroup>
         <PackageVersion Include="System.Runtime.Serialization.Formatters" Version="10.0.0"/>
+        <PackageVersion Include="System.Formats.Nrbf" Version="10.0.12" />
     </ItemGroup>
 
     <ItemGroup>

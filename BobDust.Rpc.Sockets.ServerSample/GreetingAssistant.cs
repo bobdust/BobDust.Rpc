@@ -1,10 +1,20 @@
-﻿using BobDust.Rpc.Sockets.HelloWorld;
+﻿using BobDust.Rpc.Sockets.HelloWorld.Dummies;
 
 namespace BobDust.Rpc.Sockets.ServerSample
 {
 	public class GreetingAssistant : IGreetingAssistant
 	{
-		public string Hello()
+        public void Error()
+        {
+            throw new NotImplementedException("expected impl");
+        }
+
+        public Task ErrorAsync()
+        {
+            throw new NotImplementedException("expected async impl");
+        }
+
+        public string Hello()
 		{
 			return "Hello, world!";
 		}
@@ -14,14 +24,14 @@ namespace BobDust.Rpc.Sockets.ServerSample
 			return $"Hello, {options?.Name}";
 		}
 
-		public string Hello(GreetingOptions options, string greetingFollowup)
+		public GreetingResult Hello(GreetingOptions options, string greetingFollowup)
 		{
-			return $"Hello, {options?.Name}. {greetingFollowup}!";
+			return new GreetingResult($"Hello, {options?.Name}. {greetingFollowup}!");
 		}
 
         public Task HelloAndForgetAsync(GreetingOptions options, string greetingFollowup) => HelloAsync(options, greetingFollowup);
 
-        public async Task<string> HelloAsync(GreetingOptions options, string greetingFollowup)
+        public async Task<GreetingResult> HelloAsync(GreetingOptions options, string greetingFollowup)
         {
 			async IAsyncEnumerable<string> AsyncHello()
 			{
@@ -35,7 +45,7 @@ namespace BobDust.Rpc.Sockets.ServerSample
 			{
 				builder.Append(part);
 			}
-			return builder.ToString();
+			return new GreetingResult(builder.ToString());
         }
     }
 }

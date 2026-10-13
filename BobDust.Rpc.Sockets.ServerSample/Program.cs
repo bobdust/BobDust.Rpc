@@ -1,5 +1,5 @@
 ﻿using BobDust.Rpc.Sockets.Builders;
-using BobDust.Rpc.Sockets.HelloWorld;
+using BobDust.Rpc.Sockets.HelloWorld.Dummies;
 
 namespace BobDust.Rpc.Sockets.ServerSample
 {
