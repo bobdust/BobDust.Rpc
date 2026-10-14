@@ -111,7 +111,7 @@ namespace BobDust.Rpc.Sockets
 		public async Task SendAsync(IBinarySequence data, Guid token, CancellationToken cancellationToken = default)
 		{
 			var bytes = data.ToBytes();
-			await foreach(var package in Package.SplitAsync(bytes, token, BufferSize))
+			await foreach(var package in Package.SplitAsync(bytes, token, BufferSize).WithCancellation(cancellationToken))
 			{
 				await WriteAsync(package.ToBytes(), cancellationToken);
 			}

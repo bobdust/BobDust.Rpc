@@ -1,4 +1,5 @@
-﻿using BobDust.Rpc.Sockets.Abstractions;
+﻿using System.Runtime.CompilerServices;
+using BobDust.Rpc.Sockets.Abstractions;
 
 namespace BobDust.Rpc.Sockets
 {
@@ -56,13 +57,13 @@ namespace BobDust.Rpc.Sockets
 			}
 		}
 
-		public static async IAsyncEnumerable<Package> SplitAsync(byte[] bytes, Guid token, int bufferSize)
+		public static async IAsyncEnumerable<Package> SplitAsync(byte[] bytes, Guid token, int bufferSize, [EnumeratorCancellation] CancellationToken ct = default)
 		{
 			var dataSize = bufferSize - HeaderSize;
 			var length = bytes.Length;
 			var count = length / dataSize + (length % dataSize > 0 ? 1 : 0);
 			var position = 0;
-			await foreach(var index in AsyncEnumerable.Range(1, count))
+			await foreach(var index in AsyncEnumerable.Range(1, count).WithCancellation(ct))
 			{
 				var remainLength = length - position;
 				var bytesCount = remainLength > dataSize ? dataSize : remainLength;

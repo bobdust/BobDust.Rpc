@@ -61,17 +61,15 @@ namespace BobDust.Rpc.Sockets
 
 		public async Task<IBinarySequence> PostAsync(IBinarySequence request)
 		{
-			await using (var context = AsyncContext.New())
+			await using var context = AsyncContext.New();
+			await SendAsync(request, context.Token, context.CancellationToken);
+			await context.WaitAsync(MillisecondsTimeout);
+			var response = Receive(context.Token);
+			if (response == null)
 			{
-				await SendAsync(request, context.Token, context.CancellationToken);
-				await context.WaitAsync(MillisecondsTimeout);
-				var response = Receive(context.Token);
-				if (response == null)
-				{
-					throw new TimeoutException();
-				}
-				return response;
+				throw new TimeoutException();
 			}
+			return response;
 		}
 
 		class ChannelContext : IDisposable
@@ -126,6 +124,8 @@ namespace BobDust.Rpc.Sockets
 
 			private readonly SemaphoreSlim _signal = new(0, 1);
 
+			private readonly CancellationTokenSource _cancellationTokenSource;
+
 			static AsyncContext()
 			{
 				_contexts = new ConcurrentDictionary<Guid, AsyncContext>();
@@ -135,11 +135,11 @@ namespace BobDust.Rpc.Sockets
 			{
 				Token = token;
 				_signal = new SemaphoreSlim(0, 1);
-				CancellationToken = new CancellationToken();
+				_cancellationTokenSource = new CancellationTokenSource();
 			}
 
 			public Guid Token { get; private set; }
-			public CancellationToken CancellationToken { get; private set; }
+			public CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
 			public static AsyncContext? Get(Guid token)
 			{
@@ -167,6 +167,7 @@ namespace BobDust.Rpc.Sockets
 				_signal.Release();
 				_signal.Dispose();
 				_contexts.TryRemove(Token, out var _);
+				_cancellationTokenSource.Cancel();
 			}
 
 			public Task WaitAsync(int millisecondsTimeout) => _signal.WaitAsync(millisecondsTimeout);
