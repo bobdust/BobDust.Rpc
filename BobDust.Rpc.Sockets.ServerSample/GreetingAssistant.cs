@@ -11,7 +11,7 @@ namespace BobDust.Rpc.Sockets.ServerSample
 
         public Task ErrorAsync()
         {
-            throw new NotImplementedException("expected async impl");
+            throw new Exception(nameof(ErrorAsync), new NotImplementedException("expected async impl"));
         }
 
         public string Hello()

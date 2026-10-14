@@ -45,7 +45,7 @@ try
 }
 catch(Exception asyncEx)
 {
-    Console.WriteLine(asyncEx.Message);
+    Console.WriteLine(asyncEx);
 }
 
 Console.ReadLine();

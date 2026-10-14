@@ -24,8 +24,9 @@ public class SafeExceptionConverter : JsonConverter<Exception>
         var stackTrace = reader.GetString();
         reader.Read();
         Exception? inner = default;
-        if (reader.TokenType == JsonTokenType.StartObject)
+        if (reader.TokenType == JsonTokenType.PropertyName && reader.GetString() == "InnerException")
         {
+            reader.Read();
             inner = Read(ref reader, typeof(Exception), options);
         }
         // 1. Resolve the target Exception Type
@@ -44,7 +45,7 @@ public class SafeExceptionConverter : JsonConverter<Exception>
             // SetRemoteStackTrace populates the StackTrace property with a high fidelity raw string
             ExceptionDispatchInfo.SetRemoteStackTrace(exception, stackTrace);
         }
-        reader.Skip();
+        reader.Read();
         return exception;
     }
 
