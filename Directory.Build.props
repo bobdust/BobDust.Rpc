@@ -7,7 +7,7 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
         <!-- Versioning & Metadata -->
-        <Version>1.0.1</Version>
+        <Version>1.0.2</Version>
         <Authors>BobDust</Authors>
         <Company>BobDust</Company>
         <Copyright>Copyright ©BobDust 2012</Copyright>
@@ -20,12 +20,13 @@
         <RepositoryUrl>https://github.com/bobdust/BobDust.Rpc</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>dotnet;nuget;shared-utils;tcp-rpc</PackageTags>
-        <PackageVersion>1.0.1</PackageVersion>
+        <PackageVersion>1.0.2</PackageVersion>
         <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\README.md" Pack="true" PackagePath="\" />
-
+        <None Include="$(MSBuildThisFileDirectory)LICENSE.md" Pack="true" PackagePath="\" />
         <!-- Compile the shared version file into every project safely -->
         <Compile Include="$(MSBuildThisFileDirectory)BobDust.AssemblyInfo.cs"
             Link="Properties\SharedAssemblyInfo.cs" />

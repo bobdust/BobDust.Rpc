@@ -30,7 +30,7 @@ public class SafeExceptionConverter : JsonConverter<Exception>
             inner = Read(ref reader, typeof(Exception), options);
         }
         // 1. Resolve the target Exception Type
-        Type? exceptionType = Type.GetType(typeName);
+        Type? exceptionType = Type.GetType(typeName!);
         
         // Fallback to standard Exception if the specific type isn't found
         exceptionType ??= typeof(Exception); 
