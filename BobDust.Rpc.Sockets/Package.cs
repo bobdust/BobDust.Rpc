@@ -57,13 +57,28 @@ namespace BobDust.Rpc.Sockets
 			}
 		}
 
+#if NET8_0
+		private static async IAsyncEnumerable<int> RangeAsync(int start, int count)
+		{
+			for (int i = 0; i < count; i++)
+			{
+				var index = await Task.FromResult(start + i);
+				yield return index;
+			}
+		}
+#endif
+
 		public static async IAsyncEnumerable<Package> SplitAsync(byte[] bytes, Guid token, int bufferSize, [EnumeratorCancellation] CancellationToken ct = default)
 		{
 			var dataSize = bufferSize - HeaderSize;
 			var length = bytes.Length;
 			var count = length / dataSize + (length % dataSize > 0 ? 1 : 0);
 			var position = 0;
+#if NET8_0
+			await foreach(var index in RangeAsync(1, count).WithCancellation(ct))
+#else
 			await foreach(var index in AsyncEnumerable.Range(1, count).WithCancellation(ct))
+#endif
 			{
 				var remainLength = length - position;
 				var bytesCount = remainLength > dataSize ? dataSize : remainLength;

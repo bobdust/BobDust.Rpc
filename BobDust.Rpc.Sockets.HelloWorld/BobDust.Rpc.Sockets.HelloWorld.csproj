@@ -2,10 +2,11 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BobDust.Rpc.Sockets.HelloWorld.Dummies\BobDust.Rpc.Sockets.HelloWorld.Dummies.csproj" />
+    <ProjectReference Include="..\BobDust.Rpc.Sockets.Tests\BobDust.Rpc.Sockets.Tests.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿using BobDust.Rpc.Sockets.HelloWorld.Dummies;
 
-namespace BobDust.Rpc.Sockets.ServerSample
+namespace BobDust.Rpc.Sockets.Tests.ServerSide
 {
 	public class GreetingAssistant : IGreetingAssistant
 	{

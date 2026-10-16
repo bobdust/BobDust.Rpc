@@ -1,0 +1,1 @@
+﻿await BobDust.Rpc.Sockets.Tests.ClientSide.Program.Main();

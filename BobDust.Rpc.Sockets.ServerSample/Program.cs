@@ -1,23 +1,10 @@
-﻿using BobDust.Rpc.Sockets.Builders;
-using BobDust.Rpc.Sockets.HelloWorld.Dummies;
-
-namespace BobDust.Rpc.Sockets.ServerSample
+﻿namespace BobDust.Rpc.Sockets.ServerSample
 {
 	internal class Program
 	{
 		static void Main(string[] args)
 		{
-			const int port = 1234;
-			var assistant = ServerFactory
-				//.WithSettings(Settings.DataContract([typeof(GreetingOptions), typeof(GreetingResult)]))
-				//.WithSettings(Settings.Json)
-				//.WithSettings(Settings.Xml)
-				.Default
-				.Get<GreetingAssistant>(port);
-			assistant.Start();
-			ServerFactory.Listen(port).Register<IGratitude, Gratitude>(() => new Gratitude()).Start();
-			Console.WriteLine("Greeting Assistant started.");
-			Console.ReadLine();
+			Tests.ServerSide.Program.Main(args);
 		}
 	}
 }

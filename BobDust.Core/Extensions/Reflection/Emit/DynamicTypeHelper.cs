@@ -49,7 +49,11 @@ namespace BobDust.Core.Extensions.Reflection.Emit
             _assemblies[name] = assemblyBuilder;
             return assemblyBuilder;
          }
+#if NET10_0_OR_GREATER
          assemblyBuilder = new PersistedAssemblyBuilder(assemblyName, typeof(object).Assembly);
+#elif NET8_0
+         assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+#endif
          assemblyBuilder.DisableDebugOptimization();
          dynamic wrapper = new ExpandoObject();
          wrapper.Builder = assemblyBuilder;
@@ -139,6 +143,7 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          typeBuilder.CreatePassThroughConstuctors(baseType);
          build(typeBuilder);
          var type = typeBuilder.CreateType();
+#if NET10_0_OR_GREATER
          if (!string.IsNullOrEmpty(fileName) && assemblyBuilder is PersistedAssemblyBuilder pab)
          {
             pab.Save(fileName);
@@ -152,6 +157,10 @@ namespace BobDust.Core.Extensions.Reflection.Emit
             _types[typeName] = type;
             return type;
          }
+#else
+         _types[typeName] = type;
+         return type;
+#endif
       }
 
       private static Type CreateDynamicType(Type baseType, Type contractType, Action<MethodInfo, ILGenerator> emit)

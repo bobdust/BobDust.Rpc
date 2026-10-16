@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\BobDust.Rpc.Sockets.HelloWorld.Dummies\BobDust.Rpc.Sockets.HelloWorld.Dummies.csproj" />
+    <ProjectReference Include="..\BobDust.Rpc.Sockets\BobDust.Rpc.Sockets.csproj" />
+  </ItemGroup>
+
+</Project>
