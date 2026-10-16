@@ -4,7 +4,7 @@
 	{
 		string? ContractType { get; }
 		string? OperationName { get; }
-		IEnumerable<(string Name, object Value)>? Parameters { get; }
+		IEnumerable<(string Name, object? Value, string Type)>? Parameters { get; }
 
 		ICommandResult Return();
 		ICommandResult Return(object? value);

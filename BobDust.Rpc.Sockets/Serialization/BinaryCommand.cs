@@ -8,7 +8,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 	{
 		public BinaryCommand() : base() { }
 
-		public BinaryCommand(string contractType, string operationName, IEnumerable<(string Name, object Value)> parameters) : base(contractType, operationName)
+		public BinaryCommand(string contractType, string operationName, IEnumerable<(string Name, object? Value, string Type)> parameters) : base(contractType, operationName)
 		{
 			Parameters = parameters;
 		}
@@ -20,7 +20,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 			Parameters = command.Parameters;
 		}
 
-		public IEnumerable<(string, object)>? Parameters { get; private set; }
+		public IEnumerable<(string Name, object? Value, string Type)>? Parameters { get; private set; }
 
 		public ICommandResult Return()
 		{

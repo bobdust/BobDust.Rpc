@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 using BobDust.Rpc.Sockets.Abstractions;
 
 namespace BobDust.Rpc.Sockets.Serialization
@@ -7,16 +8,16 @@ namespace BobDust.Rpc.Sockets.Serialization
 	{
         public JsonCommandResult() : base() { }
 
-		public JsonCommandResult(string ContractType, string operationName) : base(ContractType, operationName)
+		public JsonCommandResult(string contractType, string operationName) : base(contractType, operationName)
 		{
 		}
 
-		public JsonCommandResult(string ContractType, string operationName, object? returnValue) : this(ContractType, operationName)
+		public JsonCommandResult(string contractType, string operationName, object? returnValue) : this(contractType, operationName)
 		{
 			ReturnValue = returnValue;
 		}
 
-		public JsonCommandResult(string ContractType, string operationName, Exception exception) : this(ContractType, operationName)
+		public JsonCommandResult(string contractType, string operationName, Exception exception) : this(contractType, operationName)
 		{
 			Exception = exception;
 		}

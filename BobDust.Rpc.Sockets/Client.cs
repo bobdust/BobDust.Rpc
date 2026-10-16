@@ -6,12 +6,12 @@ namespace BobDust.Rpc.Sockets
 {
 	public abstract class Client : ExceptionHandler
 	{
-		private readonly Func<string, string, IEnumerable<(string, object)>, ICommand> _commandFactory;
+		private readonly Func<string, string, IEnumerable<(string, object?, string)>, ICommand> _commandFactory;
 		private readonly Func<ICommand, ICommandResult> _send;
 		private readonly Func<ICommand, Task<ICommandResult>> _sendAsync;
 
 		protected Client(
-			Func<string, string, IEnumerable<(string, object)>, ICommand> commandFactory, 
+			Func<string, string, IEnumerable<(string, object?, string)>, ICommand> commandFactory, 
 			Func<ICommand, ICommandResult> send,
 			Func<ICommand, Task<ICommandResult>> sendAsync
 		)
@@ -21,9 +21,9 @@ namespace BobDust.Rpc.Sockets
 			_sendAsync = sendAsync;
 		}
 
-		protected object? Invoke(object[] values, string contractType, [CallerMemberName] string methodName = "", string[]? parameters = null)
+		protected object? Invoke(object?[] values, string contractType, [CallerMemberName] string methodName = "", string[]? parameterNames = null, string[]? parameterTypes = null)
 		{
-			var command = _commandFactory(contractType, methodName, (parameters ?? Array.Empty<string>()).Select((name, i) => (name, values[i])).ToArray());
+			var command = _commandFactory(contractType, methodName, (parameterNames ?? Array.Empty<string>()).Select((name, i) => (name, values[i], parameterTypes![i])).ToArray());
 			var result = _send(command);
 			if (result.ReturnValue != null)
 			{
@@ -36,9 +36,9 @@ namespace BobDust.Rpc.Sockets
 			return null;
 		}
 
-		private async Task<object?> InvokeAsyncInternal(string contractType, string methodName, string[] parameters, object[] values)
+		private async Task<object?> InvokeAsyncInternal(string contractType, string methodName, (string Name, string Type)[] parameters, object?[] values)
 		{
-			var command = _commandFactory(contractType, methodName, parameters.Select((name, i) => (name, values[i])).ToArray());
+			var command = _commandFactory(contractType, methodName, parameters.Select((t, i) => (t.Name, values[i], t.Type)).ToArray());
 			var result = await _sendAsync(command);
 			if (result.ReturnValue != null)
 			{
@@ -51,9 +51,9 @@ namespace BobDust.Rpc.Sockets
 			return null;
 		}
 
-		protected async Task<T?> InvokeAsync<T>(object[] values, string contractType, [CallerMemberName] string caller = "", string[]? parameterNames = null)
+		protected async Task<T?> InvokeAsync<T>(object[] values, string contractType, [CallerMemberName] string caller = "", string[]? parameterNames = null, string[]? parameterTypes = null)
 		{
-			var result = await InvokeAsyncInternal(contractType, caller, parameterNames ?? Array.Empty<string>(), values);
+			var result = await InvokeAsyncInternal(contractType, caller, (parameterNames ?? Array.Empty<string>()).Select((name, i) => (name, parameterTypes![i])).ToArray(), values);
 			return result is T typedResult ? typedResult : default;
 		}
     }

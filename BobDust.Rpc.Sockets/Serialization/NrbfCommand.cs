@@ -10,7 +10,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 	{
 		public NrbfCommand() : base() { }
 
-		public NrbfCommand(string contractType, string operationName, IEnumerable<(string Name, object Value)> parameters) : base(contractType, operationName)
+		public NrbfCommand(string contractType, string operationName, IEnumerable<(string Name, object? Value, string Type)> parameters) : base(contractType, operationName)
 		{
 			Parameters = parameters;
 		}
@@ -22,7 +22,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 			Parameters = command.Parameters;
 		}
 
-		public IEnumerable<(string, object)>? Parameters { get; private set; }
+		public IEnumerable<(string Name, object? Value, string Type)>? Parameters { get; private set; }
 
 		public ICommandResult Return()
 		{
@@ -43,27 +43,27 @@ namespace BobDust.Rpc.Sockets.Serialization
         protected override void Serialize(BinaryFormatter formatter, Stream stream)
 #pragma warning restore SYSLIB0011 // Type or member is obsolete
         {
-			(string, object)[] parameters = [..(Parameters ?? []).Select(p => {
-				var (name, value) = p;
-				var valueType = value.GetType();
-				return (name, new JsonSerializable(valueType.AssemblyQualifiedName!, JsonSerializer.SerializeToUtf8Bytes(value, valueType)));
+			(string, object?, string)[] parameters = [..(Parameters ?? []).Select(p => {
+				var (name, value, type) = p;
+				var valueType = Type.GetType(type)!;
+				return (name, new JsonSerializable(type, JsonSerializer.SerializeToUtf8Bytes(value, valueType)), type);
 			})];
 			formatter.Serialize(stream, new NrbfCommand(ContractType!, OperationName!, parameters));
 		}
 
 		protected override NrbfCommandBase Deserialize(string contractType, string operationName, ClassRecord rootRecord)
 		{
-			var paramsRecord = ((SerializationRecord[]?)rootRecord.GetArrayRecord(BackingField(nameof(Parameters)))?.GetArray(typeof((string, object)[])))?.OfType<ClassRecord>();
-			IEnumerable<(string, object)> parameters = [..(paramsRecord ?? []).Select(record => {
+			var paramsRecord = ((SerializationRecord[]?)rootRecord.GetArrayRecord(BackingField(nameof(Parameters)))?.GetArray(typeof((string, object?, string)[])))?.OfType<ClassRecord>();
+			IEnumerable<(string, object?, string)> parameters = [..(paramsRecord ?? []).Select(record => {
 				var paramName = record.GetString("Item1");
 				var valueRecord = record.GetClassRecord("Item2");
 				var typeName = valueRecord!.GetString(BackingField(nameof(JsonSerializable.Type)));
 				var type = Type.GetType(typeName!);
 				var bytes = ((SZArrayRecord<byte>)valueRecord!.GetArrayRecord(BackingField(nameof(JsonSerializable.Bytes)))!).GetArray();
 				var paramValue = JsonSerializer.Deserialize(bytes, type!);
-				return (paramName!, paramValue!);
+				return (paramName!, paramValue!, typeName!);
 			})];
-			return new NrbfCommand(contractType, operationName, parameters);
+			return new NrbfCommand(contractType, operationName, parameters!);
 		}
 	}
 }

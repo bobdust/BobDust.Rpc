@@ -5,11 +5,11 @@ namespace BobDust.Rpc.Sockets.Serialization
 {
 	class JsonCommand : JsonCommandBase, ICommand
 	{
-		public IEnumerable<(string Name, object Value)>? Parameters { get; set; }
+		public IEnumerable<(string Name, object? Value, string Type)>? Parameters { get; set; }
 
 		public JsonCommand() : base() { }
 
-		public JsonCommand(string contractType, string operationName, IEnumerable<(string Name, object Value)> parameters) : base(contractType, operationName)
+		public JsonCommand(string contractType, string operationName, IEnumerable<(string Name, object? Value, string Type)> parameters) : base(contractType, operationName)
 		{
 			Parameters = parameters;
 		}

@@ -6,6 +6,13 @@ namespace BobDust.Rpc.Sockets.Serialization;
 
 public class SafeExceptionConverter : JsonConverter<Exception>
 {
+    private readonly bool _exceptionOnly;
+
+    public SafeExceptionConverter(bool exceptionOnly = true)
+    {
+        _exceptionOnly = exceptionOnly;
+    }
+
     public override bool CanConvert(Type typeToConvert)
     {
         return typeof(Exception).IsAssignableFrom(typeToConvert);
@@ -28,6 +35,7 @@ public class SafeExceptionConverter : JsonConverter<Exception>
         {
             reader.Read();
             inner = Read(ref reader, typeof(Exception), options);
+            reader.Read();
         }
         // 1. Resolve the target Exception Type
         Type? exceptionType = Type.GetType(typeName!);
@@ -45,7 +53,10 @@ public class SafeExceptionConverter : JsonConverter<Exception>
             // SetRemoteStackTrace populates the StackTrace property with a high fidelity raw string
             ExceptionDispatchInfo.SetRemoteStackTrace(exception, stackTrace);
         }
-        reader.Read();
+        if (!_exceptionOnly)
+        {
+            reader.Skip();
+        }
         return exception;
     }
 

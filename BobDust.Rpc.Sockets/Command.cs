@@ -10,7 +10,7 @@ namespace BobDust.Rpc.Sockets
 			protected set;
 		}
 
-		public IEnumerable<(string Name, object Value)> Parameters
+		public IEnumerable<(string Name, object? Value, string Type)> Parameters
 		{
 			get;
 			protected set;
@@ -18,7 +18,7 @@ namespace BobDust.Rpc.Sockets
 
 		public Command()
 		{
-			Parameters = Enumerable.Empty<(string Name, object Value)>();
+			Parameters = Enumerable.Empty<(string Name, object? Value, string Type)>();
 		}
 
 		public Command(string operationName)

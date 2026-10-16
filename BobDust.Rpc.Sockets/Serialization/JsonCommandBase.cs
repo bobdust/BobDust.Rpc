@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace BobDust.Rpc.Sockets.Serialization
 {
@@ -15,7 +16,10 @@ namespace BobDust.Rpc.Sockets.Serialization
 			_jsonSerializerOptions = new JsonSerializerOptions
 			{
 				IncludeFields = true, // Required for tuples
-				Converters = { new SafeExceptionConverter(), new ObjectToNativeTypesConverter() }
+				Converters = { 
+					new SafeExceptionConverter(false), 
+					new ObjectToNativeTypesConverter()
+				}
 			};
 
 		}

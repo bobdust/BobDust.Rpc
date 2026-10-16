@@ -7,11 +7,11 @@ namespace BobDust.Rpc.Sockets.Serialization
 	public class DataContractCommand : DataContractCommandBase, ICommand
 	{
 		[DataMember]
-		public IEnumerable<(string Name, object Value)>? Parameters { get; set; }
+		public IEnumerable<(string Name, object? Value, string Type)>? Parameters { get; set; }
 
 		public DataContractCommand() : base() { }
 
-		public DataContractCommand(string contractType, string operationName, IEnumerable<(string Name, object Value)> parameters) : base(contractType, operationName)
+		public DataContractCommand(string contractType, string operationName, IEnumerable<(string Name, object? Value, string Type)> parameters) : base(contractType, operationName)
 		{
 			Parameters = parameters;
 		}

@@ -22,11 +22,11 @@ await assistant.HelloAndForgetAsync(new GreetingOptions { Name = string.Empty },
 Console.WriteLine("HelloAndForgetAsync sent");
 
 var gratitude = (await ClientFactory.ConnectAsync(ip, port)).Mount<IGratitude>().As<IGratitude>();
-words = gratitude.Thanks(new GreetingOptions { Name = name ?? string.Empty }, "Have a good day");
+words = gratitude.Thanks(null, null);
 Console.WriteLine(words);
 gratitude.ThanksAway(new GreetingOptions { Name = string.Empty }, "Have a good day");
 Console.WriteLine("ThanksAway sent");
-words = await gratitude.ThanksAsync(new GreetingOptions { Name = nickname ?? string.Empty }, "Have a good day");
+words = await gratitude.ThanksAsync(null, null);
 Console.WriteLine(words);
 await gratitude.ThanksAwayAsync(new GreetingOptions { Name = string.Empty }, "Have a good day");
 Console.WriteLine("ThanksAwayAsync sent");

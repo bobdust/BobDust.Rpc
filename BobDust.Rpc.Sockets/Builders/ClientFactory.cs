@@ -97,14 +97,14 @@ namespace BobDust.Rpc.Sockets.Builders
          var invoke = baseType.GetMethod("Invoke", BindingFlags.Instance | BindingFlags.NonPublic);
          var invokeAsync = baseType.GetMethod("InvokeAsync", BindingFlags.Instance | BindingFlags.NonPublic);
          var type = baseType.Implement(contractType, (method) => method.IsAsync() ? invokeAsync! : invoke!, EmitSyncBody, EmitAsyncBody);
-         var constructor = type.GetConstructor([typeof(Func<string, string, IEnumerable<(string Name, object Value)>, ICommand>), typeof(Func<ICommand, ICommandResult>), typeof(Func<ICommand, Task<ICommandResult>>)]);
+         var constructor = type.GetConstructor([typeof(Func<string, string, IEnumerable<(string Name, object? Value, string Type)>, ICommand>), typeof(Func<ICommand, ICommandResult>), typeof(Func<ICommand, Task<ICommandResult>>)]);
          if (constructor == null)
          {
             throw new InvalidOperationException($"Constructor not found for type {type.FullName}");
          }
          try
          {
-            Func<string, string, IEnumerable<(string Name, object Value)>, ICommand> commandFactory = BuildCommand;
+            Func<string, string, IEnumerable<(string Name, object? Value, string Type)>, ICommand> commandFactory = BuildCommand;
             var instance = constructor.Invoke([commandFactory, send, sendAsync]);
             return instance;
          }
@@ -137,6 +137,15 @@ namespace BobDust.Rpc.Sockets.Builders
             emitter.Emit(OpCodes.Dup);
             emitter.Emit(OpCodes.Ldc_I4, i);
             emitter.Emit(OpCodes.Ldstr, parameters[i].Name!);
+            emitter.Emit(OpCodes.Stelem_Ref);
+         }
+         emitter.Emit(OpCodes.Ldc_I4, parameters.Length);
+         emitter.Emit(OpCodes.Newarr, typeof(string));
+         for (var i = 0; i < parameters.Length; i++)
+         {
+            emitter.Emit(OpCodes.Dup);
+            emitter.Emit(OpCodes.Ldc_I4, i);
+            emitter.Emit(OpCodes.Ldstr, parameters[i].ParameterType.AssemblyQualifiedName!);
             emitter.Emit(OpCodes.Stelem_Ref);
          }
          if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
@@ -175,6 +184,15 @@ namespace BobDust.Rpc.Sockets.Builders
             emitter.Emit(OpCodes.Ldstr, parameters[i].Name!);
             emitter.Emit(OpCodes.Stelem_Ref);
          }
+         emitter.Emit(OpCodes.Ldc_I4, parameters.Length);
+         emitter.Emit(OpCodes.Newarr, typeof(string));
+         for (var i = 0; i < parameters.Length; i++)
+         {
+            emitter.Emit(OpCodes.Dup);
+            emitter.Emit(OpCodes.Ldc_I4, i);
+            emitter.Emit(OpCodes.Ldstr, parameters[i].ParameterType.AssemblyQualifiedName!);
+            emitter.Emit(OpCodes.Stelem_Ref);
+         }
          emitter.Emit(OpCodes.Call, invoke);
          if (method.ReturnType != typeof(void))
          {
@@ -192,7 +210,7 @@ namespace BobDust.Rpc.Sockets.Builders
          return Helpers.BuildCommandResultFromBytes(_settings)(bytes);
       }
 
-      private ICommand BuildCommand(string contractType, string method, IEnumerable<(string Name, object Value)> parameters)
+      private ICommand BuildCommand(string contractType, string method, IEnumerable<(string Name, object? Value, string Type)> parameters)
       {
          return Helpers.BuildCommandFromMethod(_settings)(contractType, method, parameters);
       }

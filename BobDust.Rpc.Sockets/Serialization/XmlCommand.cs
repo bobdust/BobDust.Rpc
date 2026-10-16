@@ -13,6 +13,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 			public const string Parameter = "Parameter";
 			public const string Name = "name";
 			public const string Type = "type";
+			public const string Nil = "nil";
 		}
 
 		public XmlCommand()
@@ -20,13 +21,13 @@ namespace BobDust.Rpc.Sockets.Serialization
 		{
 		}
 
-		public XmlCommand(string operationName, IEnumerable<(string Name, object Value)> parameters)
+		public XmlCommand(string operationName, IEnumerable<(string Name, object? Value, string Type)> parameters)
 		   : base(operationName)
 		{
 			Parameters = parameters;
 		}
 
-		public XmlCommand(string contractType, string operationName, IEnumerable<(string Name, object Value)> parameters)
+		public XmlCommand(string contractType, string operationName, IEnumerable<(string Name, object? Value, string Type)> parameters)
 		   : this(operationName, parameters)
 		{
 			ContractType = contractType;
@@ -59,7 +60,14 @@ namespace BobDust.Rpc.Sockets.Serialization
 				xmlWriter.WriteStartElement(XmlNames.Parameter);
 				xmlWriter.WriteAttributeString(XmlNames.Name, name);
 				var value = parameter.Value;
-				xmlWriter.Write(value);
+				if (value is null)
+				{
+					xmlWriter.WriteNil(parameter.Type);
+				}
+				else
+				{
+					xmlWriter.Write(value);
+				}
 				xmlWriter.WriteEndElement();
 			}
 			xmlWriter.WriteEndElement();
@@ -74,14 +82,20 @@ namespace BobDust.Rpc.Sockets.Serialization
 
 			xmlReader.Read();
 			OperationName = xmlReader.Name;
-			var paramList = new List<(string Name, object Value)>();
+			var paramList = new List<(string Name, object? Value, string Type)>();
 			while (xmlReader.ReadToFollowing(XmlNames.Parameter))
 			{
 				var name = xmlReader.GetAttribute(XmlNames.Name);
-				var type = Type.GetType(xmlReader.GetAttribute(XmlNames.Type)!);
-				xmlReader.Read();
-				var obj = xmlReader.Read(type!);
-				paramList.Add((name!, obj));
+				var typeName = xmlReader.GetAttribute(XmlNames.Type)!;
+				var nil = xmlReader.GetAttribute(XmlNames.Nil);
+				var type = Type.GetType(typeName);
+				object? obj = null;
+				if (nil is null)
+				{
+					xmlReader.Read();
+					obj = xmlReader.Read(type!);
+				}
+				paramList.Add((name!, obj, typeName));
 			}
 			Parameters = paramList;
 		}

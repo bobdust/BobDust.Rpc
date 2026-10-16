@@ -4,17 +4,25 @@ namespace BobDust.Rpc.Sockets.ServerSample
 {
 	public class Gratitude : IGratitude
 	{
-		public GreetingResult? Thanks(GreetingOptions options, string gratitudeFollowup)
+		public GreetingResult? Thanks(GreetingOptions? options, string? gratitudeFollowup)
 		{
-			// return default;
+			if (options is null || gratitudeFollowup is null)
+			{
+				return default;
+			}
+
 			return new GreetingResult{Result = $"Thanks, {options?.Name}. {gratitudeFollowup}!"};
 		}
 
 		public Task ThanksAwayAsync(GreetingOptions options, string gratitudeFollowup) => ThanksAsync(options, gratitudeFollowup);
 
-		public async Task<GreetingResult?> ThanksAsync(GreetingOptions options, string gratitudeFollowup)
+		public async Task<GreetingResult?> ThanksAsync(GreetingOptions? options, string? gratitudeFollowup)
 		{
-			// return default;
+			if (options is null || gratitudeFollowup is null)
+			{
+				return default;
+			}
+
 			async IAsyncEnumerable<string> AsyncThanks()
 			{
 				yield return "Thanks";

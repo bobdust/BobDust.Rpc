@@ -73,7 +73,7 @@ namespace BobDust.Rpc.Sockets
 						_executors[key] = executor;
 					}
 				}
-				var typeArgs = command.Parameters!.Select(p => p.Value.GetType());
+				var typeArgs = command.Parameters!.Select(p => Type.GetType(p.Type)!);
 				var method = executor.GetType().GetMethod(command.OperationName!, [.. typeArgs]);
 				Type delegateType;
 				var returnType = method?.ReturnType!;

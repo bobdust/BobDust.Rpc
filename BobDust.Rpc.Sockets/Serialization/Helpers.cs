@@ -42,7 +42,7 @@ public static class Helpers
         };
     }
 
-    public static Func<string, string, IEnumerable<(string Name, object Value)>, ICommand> BuildCommandFromMethod(Settings settings)
+    public static Func<string, string, IEnumerable<(string Name, object? Value, string Type)>, ICommand> BuildCommandFromMethod(Settings settings)
     {
         SetKnownTypes(settings);
         return settings.DataFormat switch

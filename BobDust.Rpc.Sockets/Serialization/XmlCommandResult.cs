@@ -48,7 +48,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 			{
 				xmlWriter.WriteStartElement(XmlNames.Exception);
 				xmlWriter.WriteAttributeString(XmlNames.Type, Exception.GetType().AssemblyQualifiedName);
-				xmlWriter.WriteObject(Exception);
+				xmlWriter.WriteException(Exception);
 				xmlWriter.WriteEndElement();
 			}
 			xmlWriter.WriteEndElement();
@@ -74,11 +74,7 @@ namespace BobDust.Rpc.Sockets.Serialization
 				}
 				else if (xmlReader.Name == XmlNames.Exception)
 				{
-					if (xmlReader.IsStartElement(XmlNames.Exception))
-					{
-						xmlReader.Read();
-					}
-					Exception = (Exception)xmlReader.ReadObject(type!);
+					Exception = xmlReader.ReadException(type!);
 				}
 			}
 		}
