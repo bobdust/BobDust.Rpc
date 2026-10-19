@@ -61,7 +61,11 @@ namespace BobDust.Rpc.Sockets
 
 		public async Task<IBinarySequence> PostAsync(IBinarySequence request)
 		{
+#if !NET48
 			await using var context = AsyncContext.New();
+#else
+			using var context = AsyncContext.New();
+#endif
 			await SendAsync(request, context.Token, context.CancellationToken);
 			await context.WaitAsync(MillisecondsTimeout);
 			var response = Receive(context.Token);
@@ -118,7 +122,12 @@ namespace BobDust.Rpc.Sockets
 				_contexts.TryRemove(Token, out var _);
 			}
 		}
-		class AsyncContext : IAsyncDisposable
+		class AsyncContext :
+#if !NET48
+		IAsyncDisposable
+#else
+		IDisposable
+#endif
 		{
 			private static ConcurrentDictionary<Guid, AsyncContext> _contexts;
 
@@ -162,8 +171,12 @@ namespace BobDust.Rpc.Sockets
 				return context;
 			}
 
+#if !NET48
             public async ValueTask DisposeAsync()
-            {
+#else
+			public void Dispose()
+#endif
+			{
 				_signal.Release();
 				_signal.Dispose();
 				_contexts.TryRemove(Token, out var _);
@@ -179,6 +192,6 @@ namespace BobDust.Rpc.Sockets
 					_signal.Release();
 				}
 			}
-        }
+		}
 	}
 }

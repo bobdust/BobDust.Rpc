@@ -16,14 +16,14 @@ namespace BobDust.Rpc.Sockets.Tests.ServerSide
 
 		public Task ThanksAwayAsync(GreetingOptions options, string gratitudeFollowup) => ThanksAsync(options, gratitudeFollowup);
 
-		public async Task<GreetingResult?> ThanksAsync(GreetingOptions? options, string? gratitudeFollowup)
+		public Task<GreetingResult?> ThanksAsync(GreetingOptions? options, string? gratitudeFollowup)
 		{
 			if (options is null || gratitudeFollowup is null)
 			{
 				return default;
 			}
 
-			async IAsyncEnumerable<string> AsyncThanks()
+			IEnumerable<string> AsyncThanks()
 			{
 				yield return "Thanks";
 				yield return $" {options?.Name ?? "world"}";
@@ -31,11 +31,11 @@ namespace BobDust.Rpc.Sockets.Tests.ServerSide
 				yield return gratitudeFollowup;
 			}
 			var builder = new System.Text.StringBuilder();
-			await foreach (var part in AsyncThanks())
+			foreach (var part in AsyncThanks())
 			{
 				builder.Append(part);
 			}
-			return new GreetingResult{ Result = builder.ToString()};
+			return Task.FromResult(new GreetingResult{ Result = builder.ToString()});
 		}
 
 		public void ThanksAway(GreetingOptions options, string gratitudeFollowup)

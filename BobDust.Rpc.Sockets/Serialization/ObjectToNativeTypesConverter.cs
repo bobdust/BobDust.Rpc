@@ -1,3 +1,5 @@
+#if !NET48
+
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -81,3 +83,5 @@ public class ObjectToNativeTypesConverter : JsonConverter<object>
         }
     }
 }
+
+#endif

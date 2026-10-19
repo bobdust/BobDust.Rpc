@@ -17,8 +17,12 @@ namespace BobDust.Rpc.Sockets.Builders
 
       private static int KeyHashCode((string Host, int Port) key) => key.Port.GetHashCode();
 
-      private static EqualityComparer<(string Host, int Port)> CreateComparer()
+      private static IEqualityComparer<(string Host, int Port)> CreateComparer()
+#if !NET48
          => EqualityComparer<(string Host, int Port)>.Create(KeyCompare, KeyHashCode);
+#else
+         =>  new DelegateEqualityComparer<(string Host, int Port)>(KeyCompare, KeyHashCode);
+#endif
 
       private static readonly ConcurrentDictionary<(string Host, int Port), ClientFactory> _instances
          = new ConcurrentDictionary<(string Host, int Port), ClientFactory>(CreateComparer());

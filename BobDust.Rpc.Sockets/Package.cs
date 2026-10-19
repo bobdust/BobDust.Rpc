@@ -50,7 +50,8 @@ namespace BobDust.Rpc.Sockets
 			{
 				var remainLength = length - position;
 				var bytesCount = remainLength > dataSize ? dataSize : remainLength;
-				byte[] packageData = bytes[position .. (position + bytesCount)];
+				// byte[] packageData = bytes[position .. (position + bytesCount)];
+				byte[] packageData = new ArraySegment<byte>(bytes, position, bytesCount).Array;
 				var package = new Package(token, index, count, packageData);
 				position += bytesCount;
 				yield return package;
@@ -68,6 +69,7 @@ namespace BobDust.Rpc.Sockets
 		}
 #endif
 
+#if !NET48
 		public static async IAsyncEnumerable<Package> SplitAsync(byte[] bytes, Guid token, int bufferSize, [EnumeratorCancellation] CancellationToken ct = default)
 		{
 			var dataSize = bufferSize - HeaderSize;
@@ -88,6 +90,7 @@ namespace BobDust.Rpc.Sockets
 				yield return package;
 			}
 		}
+#endif
 
 		public Guid Token { get; private set; }
 		public int Index { get; private set; }

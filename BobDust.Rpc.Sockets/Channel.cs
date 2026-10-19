@@ -75,7 +75,9 @@ namespace BobDust.Rpc.Sockets
 				var sendSocket = _client.Client;
 				var receiveSocket = new Socket(sendSocket.AddressFamily, sendSocket.SocketType, sendSocket.ProtocolType)
 				{
+#if !NET48
 					DualMode = true
+#endif
 				};
 				receiveSocket.Connect(sendSocket.RemoteEndPoint!);
 				_pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize)

@@ -53,6 +53,8 @@ namespace BobDust.Core.Extensions.Reflection.Emit
          assemblyBuilder = new PersistedAssemblyBuilder(assemblyName, typeof(object).Assembly);
 #elif NET8_0
          assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+#else
+         assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Save);
 #endif
          assemblyBuilder.DisableDebugOptimization();
          dynamic wrapper = new ExpandoObject();
@@ -157,6 +159,13 @@ namespace BobDust.Core.Extensions.Reflection.Emit
             _types[typeName] = type;
             return type;
          }
+#elif NET48
+         if (!string.IsNullOrEmpty(fileName))
+         {
+            assemblyBuilder.Save(fileName);
+         }
+         _types[typeName] = type;
+         return type;
 #else
          _types[typeName] = type;
          return type;

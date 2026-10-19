@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BobDust.Core.Threading;
-using System.IO;
+﻿using BobDust.Core.Threading;
 using SystemSocket = System.Net.Sockets.Socket;
-using System.Collections.Concurrent;
 using System.Net.Sockets;
-using System.Threading;
 using BobDust.Core.ExceptionHandling;
 using BobDust.Rpc.Sockets.Abstractions;
 
@@ -89,12 +82,20 @@ namespace BobDust.Rpc.Sockets
 
         public override async Task WriteAsync(byte[] buffer, CancellationToken cancellationToken)
         {
+#if !NET48
             await _sendSocket.SendAsync(buffer, SocketFlags.None, cancellationToken);
+#else
+            await _sendSocket.SendAsync(new ArraySegment<byte>(buffer), SocketFlags.None);
+#endif
         }
 
         public override async Task<int> ReadAsync(byte[] buffer, CancellationToken cancellationToken)
         {
+#if !NET48
             return await _receiveSocket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken);
+#else
+            return await _receiveSocket.ReceiveAsync(new ArraySegment<byte>(buffer), SocketFlags.None);
+#endif
         }
     }
 }

@@ -5,9 +5,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BobDust.Rpc.Sockets.Abstractions\BobDust.Rpc.Sockets.Abstractions.csproj" />
-    <PackageReference Include="System.Runtime.Serialization.Formatters" />
+    <ProjectReference
+      Include="..\BobDust.Rpc.Sockets.Abstractions\BobDust.Rpc.Sockets.Abstractions.csproj" />
+    <!-- <PackageReference Include="System.Runtime.Serialization.Formatters" /> -->
     <PackageReference Include="System.Formats.Nrbf" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+    <PackageReference Include="System.Runtime.Serialization.Formatters" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0' Or '$(TargetFramework)' == 'net48'">
+    <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
 
 </Project>

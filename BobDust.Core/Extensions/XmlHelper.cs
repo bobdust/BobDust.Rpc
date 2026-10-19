@@ -2,6 +2,7 @@
 using System.Xml.Serialization;
 using System.Collections;
 using System.Runtime.ExceptionServices;
+using System.Reflection;
 
 namespace BobDust.Core.Extensions
 {
@@ -163,8 +164,13 @@ namespace BobDust.Core.Extensions
          // 3. Attach the arbitrary text stack trace string cleanly
          if (!string.IsNullOrWhiteSpace(stackTrace))
          {
+#if !NET48
             // SetRemoteStackTrace populates the StackTrace property with a high fidelity raw string
             ExceptionDispatchInfo.SetRemoteStackTrace(exception, stackTrace);
+#else
+         var stackTraceStringField = exception.GetType().GetField("_stackTraceString", BindingFlags.NonPublic | BindingFlags.Instance);
+         stackTraceStringField?.SetValue(exception, stackTrace);
+#endif
          }
          return exception;
       }

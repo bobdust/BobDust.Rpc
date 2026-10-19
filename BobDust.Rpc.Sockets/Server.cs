@@ -30,8 +30,13 @@ namespace BobDust.Rpc.Sockets
 
 		private async Task Listen(CancellationToken cancellationToken)
 		{
+#if !NET48
 			var client = await _listener.AcceptTcpClientAsync(cancellationToken);
 			var sendSocket = await _listener.AcceptSocketAsync(cancellationToken);
+#else
+			var client = await _listener.AcceptTcpClientAsync();
+			var sendSocket = await _listener.AcceptSocketAsync();
+#endif
 			var receiveSocket = client.Client;
 			var pipeline = new CommandPipeline(new SocketPipeline(sendSocket, receiveSocket), Deserialize)
 			{

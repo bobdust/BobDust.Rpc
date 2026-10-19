@@ -1,5 +1,9 @@
-﻿using System.Text.Json;
+﻿#if !NET48
+using System.Text.Json;
 using System.Text.Json.Serialization;
+#else
+using JsonSerializerOptions = Newtonsoft.Json.JsonSerializerSettings;
+#endif
 
 namespace BobDust.Rpc.Sockets.Serialization
 {
@@ -15,11 +19,13 @@ namespace BobDust.Rpc.Sockets.Serialization
 		{
 			_jsonSerializerOptions = new JsonSerializerOptions
 			{
+#if !NET48
 				IncludeFields = true, // Required for tuples
 				Converters = { 
 					new SafeExceptionConverter(false), 
 					new ObjectToNativeTypesConverter()
 				}
+#endif
 			};
 
 		}

@@ -1,6 +1,13 @@
 ﻿using System.Formats.Nrbf;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
+
+#if !NET48
 using System.Text.Json;
+#else
+using Newtonsoft.Json;
+#endif
+
 using BobDust.Rpc.Sockets.Abstractions;
 
 namespace BobDust.Rpc.Sockets.Serialization
@@ -46,7 +53,11 @@ namespace BobDust.Rpc.Sockets.Serialization
 			(string, object?, string)[] parameters = [..(Parameters ?? []).Select(p => {
 				var (name, value, type) = p;
 				var valueType = Type.GetType(type)!;
+#if !NET48
 				return (name, new JsonSerializable(type, JsonSerializer.SerializeToUtf8Bytes(value, valueType)), type);
+#else
+				return (name, new JsonSerializable(type, Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(value, valueType, null))), type);
+#endif
 			})];
 			formatter.Serialize(stream, new NrbfCommand(ContractType!, OperationName!, parameters));
 		}
@@ -60,7 +71,11 @@ namespace BobDust.Rpc.Sockets.Serialization
 				var typeName = valueRecord!.GetString(BackingField(nameof(JsonSerializable.Type)));
 				var type = Type.GetType(typeName!);
 				var bytes = ((SZArrayRecord<byte>)valueRecord!.GetArrayRecord(BackingField(nameof(JsonSerializable.Bytes)))!).GetArray();
+#if !NET48
 				var paramValue = JsonSerializer.Deserialize(bytes, type!);
+#else
+				var paramValue = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(bytes), type!);
+#endif
 				return (paramName!, paramValue!, typeName!);
 			})];
 			return new NrbfCommand(contractType, operationName, parameters!);

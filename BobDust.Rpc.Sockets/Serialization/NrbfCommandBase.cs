@@ -1,6 +1,5 @@
 ﻿using System.Formats.Nrbf;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text.Json;
 
 namespace BobDust.Rpc.Sockets.Serialization
 {

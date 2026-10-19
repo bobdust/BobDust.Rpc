@@ -31,9 +31,9 @@ namespace BobDust.Rpc.Sockets.Tests.ServerSide
 
         public Task HelloAndForgetAsync(GreetingOptions options, string greetingFollowup) => HelloAsync(options, greetingFollowup);
 
-        public async Task<GreetingResult> HelloAsync(GreetingOptions options, string greetingFollowup)
+        public Task<GreetingResult> HelloAsync(GreetingOptions options, string greetingFollowup)
         {
-			async IAsyncEnumerable<string> AsyncHello()
+			IEnumerable<string> AsyncHello()
 			{
 				yield return "Hello";
 				yield return $" {options?.Name ?? "world"}";
@@ -41,11 +41,11 @@ namespace BobDust.Rpc.Sockets.Tests.ServerSide
 				yield return greetingFollowup;
 			}
 			var builder = new System.Text.StringBuilder();
-            await foreach (var part in AsyncHello())
+            foreach (var part in AsyncHello())
 			{
 				builder.Append(part);
 			}
-			return new GreetingResult{Result = builder.ToString()};
+			return Task.FromResult(new GreetingResult{Result = builder.ToString()});
         }
     }
 }

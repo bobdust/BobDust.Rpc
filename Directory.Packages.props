@@ -6,11 +6,13 @@
     <ItemGroup>
         <PackageVersion Include="System.Runtime.Serialization.Formatters" Version="10.0.0"/>
         <PackageVersion Include="System.Formats.Nrbf" Version="10.0.12" />
+        <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageVersion Include="BobDust.Core" Version="1.0.2" />
-        <PackageVersion Include="BobDust.Rpc.Sockets" Version="1.0.2" />
-        <PackageVersion Include="BobDust.Rpc.Sockets.Abstractions" Version="1.0.2" />
+        <PackageVersion Include="BobDust.Core" Version="1.1.0-rc" />
+        <PackageVersion Include="BobDust.Rpc.Sockets" Version="1.1.0-rc" />
+        <PackageVersion Include="BobDust.Rpc.Sockets.Abstractions" Version="1.1.0-rc" />
+        <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
 </Project>
