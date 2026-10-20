@@ -7,16 +7,16 @@ namespace BobDust.Rpc.Sockets.Serialization
 	{
         public DataContractCommandResult() : base() { }
 
-		public DataContractCommandResult(string ContractType, string operationName) : base(ContractType, operationName)
+		public DataContractCommandResult(string contractType, string operationName) : base(contractType, operationName)
 		{
 		}
 
-		public DataContractCommandResult(string ContractType, string operationName, object? returnValue) : this(ContractType, operationName)
+		public DataContractCommandResult(string contractType, string operationName, object? returnValue) : this(contractType, operationName)
 		{
 			ReturnValue = returnValue;
 		}
 
-		public DataContractCommandResult(string ContractType, string operationName, Exception exception) : this(ContractType, operationName)
+		public DataContractCommandResult(string contractType, string operationName, Exception exception) : this(contractType, operationName)
 		{
 			Exception = exception;
 		}
