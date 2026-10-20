@@ -4,17 +4,17 @@ namespace BobDust.Rpc.Sockets.Tests.ServerSide
 {
 	public class GreetingAssistant : IGreetingAssistant
 	{
-        public void Error()
-        {
-            throw new NotImplementedException("expected impl");
-        }
+		public void Error()
+		{
+			throw new NotImplementedException("expected impl");
+		}
 
-        public Task ErrorAsync()
-        {
-            throw new Exception(nameof(ErrorAsync), new NotImplementedException("expected async impl"));
-        }
+		public Task ErrorAsync()
+		{
+			throw new Exception(nameof(ErrorAsync), new NotImplementedException("expected async impl"));
+		}
 
-        public string Hello()
+		public string Hello()
 		{
 			return "Hello, world!";
 		}
@@ -26,13 +26,13 @@ namespace BobDust.Rpc.Sockets.Tests.ServerSide
 
 		public GreetingResult Hello(GreetingOptions options, string greetingFollowup)
 		{
-			return new GreetingResult{Result = $"Hello, {options?.Name}. {greetingFollowup}!"};
+			return new GreetingResult { Result = $"Hello, {options?.Name}. {greetingFollowup}!" };
 		}
 
-        public Task HelloAndForgetAsync(GreetingOptions options, string greetingFollowup) => HelloAsync(options, greetingFollowup);
+		public Task HelloAndForgetAsync(GreetingOptions options, string greetingFollowup) => HelloAsync(options, greetingFollowup);
 
-        public Task<GreetingResult> HelloAsync(GreetingOptions options, string greetingFollowup)
-        {
+		public Task<GreetingResult> HelloAsync(GreetingOptions options, string greetingFollowup)
+		{
 			IEnumerable<string> AsyncHello()
 			{
 				yield return "Hello";
@@ -41,11 +41,11 @@ namespace BobDust.Rpc.Sockets.Tests.ServerSide
 				yield return greetingFollowup;
 			}
 			var builder = new System.Text.StringBuilder();
-            foreach (var part in AsyncHello())
+			foreach (var part in AsyncHello())
 			{
 				builder.Append(part);
 			}
-			return Task.FromResult(new GreetingResult{Result = builder.ToString()});
-        }
-    }
+			return Task.FromResult(new GreetingResult { Result = builder.ToString() });
+		}
+	}
 }

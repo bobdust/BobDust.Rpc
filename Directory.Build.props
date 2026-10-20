@@ -14,7 +14,7 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
         <!-- Versioning & Metadata -->
-        <Version>1.1.0-rc</Version>
+        <Version>1.1.0</Version>
         <Authors>BobDust</Authors>
         <Company>BobDust</Company>
         <Copyright>Copyright ©BobDust 2012</Copyright>
@@ -27,7 +27,7 @@
         <RepositoryUrl>https://github.com/bobdust/BobDust.Rpc</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>dotnet;nuget;shared-utils;tcp-rpc</PackageTags>
-        <PackageVersion>1.1.0-rc</PackageVersion>
+        <PackageVersion>1.1.0</PackageVersion>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     </PropertyGroup>

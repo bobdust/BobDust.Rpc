@@ -50,8 +50,11 @@ namespace BobDust.Rpc.Sockets
 			{
 				var remainLength = length - position;
 				var bytesCount = remainLength > dataSize ? dataSize : remainLength;
-				// byte[] packageData = bytes[position .. (position + bytesCount)];
-				byte[] packageData = new ArraySegment<byte>(bytes, position, bytesCount).ToArray();
+#if !NET48
+				byte[] packageData = bytes[position .. (position + bytesCount)];
+#else
+				byte[] packageData = [.. bytes.Skip(position).Take(bytesCount)];
+#endif
 				var package = new Package(token, index, count, packageData);
 				position += bytesCount;
 				yield return package;
