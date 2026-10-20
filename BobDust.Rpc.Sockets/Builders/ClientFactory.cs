@@ -28,12 +28,12 @@ namespace BobDust.Rpc.Sockets.Builders
          = new ConcurrentDictionary<(string Host, int Port), ClientFactory>(CreateComparer());
 
       private ConcurrentDictionary<(string Host, int Port), IChannel> _channels;
-      private readonly Settings _settings;
+      public Settings Settings { get; }
 
       private ClientFactory(Settings settings)
       {
          _channels = new ConcurrentDictionary<(string Host, int Port), IChannel>(CreateComparer());
-         _settings = settings;
+         Settings = settings;
       }
 
       public T Get<T>(string host, int port)
@@ -211,12 +211,12 @@ namespace BobDust.Rpc.Sockets.Builders
 
       private ICommandResult BuildCommandResult(byte[] bytes)
       {
-         return Helpers.BuildCommandResultFromBytes(_settings)(bytes);
+         return Helpers.BuildCommandResultFromBytes(Settings)(bytes);
       }
 
       private ICommand BuildCommand(string contractType, string method, IEnumerable<(string Name, object? Value, string Type)> parameters)
       {
-         return Helpers.BuildCommandFromMethod(_settings)(contractType, method, parameters);
+         return Helpers.BuildCommandFromMethod(Settings)(contractType, method, parameters);
       }
    }
 

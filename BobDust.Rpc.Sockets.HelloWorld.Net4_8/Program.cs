@@ -6,7 +6,7 @@ namespace BobDust.Rpc.Sockets.HelloWorld.Net4_8
     {
         static async Task Main(string[] args)
         {
-            await Tests.ClientSide.Program.Main();
+            await BobDust.Rpc.Sockets.Tests.ClientSide.Program.Main(args);
         }
     }
 }

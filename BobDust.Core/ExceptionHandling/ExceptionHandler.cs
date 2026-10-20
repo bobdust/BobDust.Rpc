@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BobDust.Core.ExceptionHandling
+﻿namespace BobDust.Core.ExceptionHandling
 {
     public abstract class ExceptionHandler : IExceptionHandler
    {

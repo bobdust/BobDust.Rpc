@@ -1,1 +1,1 @@
-﻿await BobDust.Rpc.Sockets.Tests.ClientSide.Program.Main();
+﻿await BobDust.Rpc.Sockets.Tests.ClientSide.Program.Main(args);

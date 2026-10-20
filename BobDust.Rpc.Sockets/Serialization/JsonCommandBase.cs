@@ -2,6 +2,7 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 #else
+using Newtonsoft.Json;
 using JsonSerializerOptions = Newtonsoft.Json.JsonSerializerSettings;
 #endif
 
@@ -23,6 +24,12 @@ namespace BobDust.Rpc.Sockets.Serialization
 				IncludeFields = true, // Required for tuples
 				Converters = { 
 					new SafeExceptionConverter(false), 
+					new ObjectToNativeTypesConverter()
+				}
+#else
+				// ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+				Converters = { 
+					new SafeExceptionConverter(), 
 					new ObjectToNativeTypesConverter()
 				}
 #endif

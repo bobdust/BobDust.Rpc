@@ -83,5 +83,97 @@ public class ObjectToNativeTypesConverter : JsonConverter<object>
         }
     }
 }
+#else
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+namespace BobDust.Rpc.Sockets.Serialization;
+
+public class ObjectToNativeTypesConverter : JsonConverter
+{
+    private const string TypePropertyName = "$type";
+    private const string PayloadPropertyName = "$payload";
+
+#pragma warning disable SYSLIB0050 // Type or member is obsolete
+    private static bool ShouldIndicateType(Type type) => type.GetCustomAttributes(typeof(TypeIndicatorAttribute), false).Any();
+#pragma warning restore SYSLIB0050 // Type or member is obsolete
+
+    public override bool CanConvert(Type objectType) => ShouldIndicateType(objectType) || objectType == typeof(object);
+
+    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+    {
+        var jToken = JToken.Load(reader);
+        return jToken.Type switch
+        {
+            JTokenType.Boolean => jToken.Value<bool>(),
+            JTokenType.Integer => jToken.Value<int>(),
+            JTokenType.Float => jToken.Value<double>(),
+            JTokenType.String => jToken.Value<string>(),
+            JTokenType.Date => jToken.Value<DateTime>(),
+            JTokenType.Object => ReadObject(jToken, objectType, serializer),
+            JTokenType.Array => serializer.Deserialize<List<object>>(reader),
+            _ => Fallback(jToken, objectType, serializer)
+        };
+    }
+
+    private object? Fallback(JToken jToken, Type objectType, JsonSerializer serializer)
+    {
+        // Create a new JsonSerializerSettings copy that excludes this converter
+        var settings = new JsonSerializerSettings();
+        foreach (var conv in serializer.Converters)
+        {
+            if (!(conv is ObjectToNativeTypesConverter))
+            {
+                settings.Converters.Add(conv);
+            }
+        }
+
+        return jToken.ToObject(objectType, JsonSerializer.Create(settings));
+    }
+
+    private object? ReadObject(JToken jToken, Type objectType, JsonSerializer serializer)
+    {
+        // Extract the runtime type discriminator
+        var typeName = jToken.Value<string>(TypePropertyName);
+        if (!string.IsNullOrWhiteSpace(typeName))
+        {
+            // Resolve the stored text metadata into a concrete .NET Type object
+            Type? targetType = Type.GetType(typeName);
+
+            if (targetType == null)
+            {
+                throw new JsonException($"Could not resolve .NET type: '{typeName}'");
+            }
+
+            // Get the real data payload block
+            return JsonConvert.DeserializeObject(jToken.Value<string>(PayloadPropertyName), targetType);
+        }
+        return Fallback(jToken, objectType, serializer);
+    }
+
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        var valueType = value?.GetType();
+        if (valueType is not null && ShouldIndicateType(valueType))
+        {
+            writer.WriteStartObject();
+
+            // 1. Serialize the explicit .NET type information
+            string? typeName = valueType.AssemblyQualifiedName;
+            writer.WritePropertyName(TypePropertyName);
+            writer.WriteValue(typeName);
+
+            // 2. Serialize the object data as a sub-payload to avoid property collisions
+            writer.WritePropertyName(PayloadPropertyName);
+            writer.WriteValue(JsonConvert.SerializeObject(value, valueType, null));
+
+            writer.WriteEndObject();
+        }
+        else
+        {
+            serializer.Serialize(writer, value);
+        }
+    }
+}
 
 #endif

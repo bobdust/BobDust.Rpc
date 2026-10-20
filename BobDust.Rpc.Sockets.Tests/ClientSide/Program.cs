@@ -5,24 +5,33 @@ namespace BobDust.Rpc.Sockets.Tests.ClientSide;
 
 public static class Program
 {
-    public static async Task Main()
+    public static async Task Main(string[] args)
     {
+        Console.Write("Your name: ");
+        var name = Console.ReadLine();
+        Console.Write("Nickname: ");
+        var nickname = Console.ReadLine();
+        await Template.Main(args, Main, name, nickname);
+        Console.ReadLine();
+    }
 
+    private static async Task Main(int port, Settings? settings, object[] inputs)
+    {
         const string ip = "127.0.0.1";
         const string host = "localhost";
-        const int port = 1234;
-        var assistant = ClientFactory
+        ClientFactory clientFactory;
+        //const int port = 1234;
+        var assistant = (clientFactory = settings is null ? ClientFactory.Default : ClientFactory.WithSettings(settings))
             //.WithSettings(Settings.DataContract([typeof(GreetingOptions), typeof(GreetingResult)]))
             //.WithSettings(Settings.Json)
             //.WithSettings(Settings.Xml)
-            .Default
+            //.Default
             .Get<IGreetingAssistant>(host, port);
-        Console.Write("Your name: ");
-        var name = Console.ReadLine();
+        Console.WriteLine($"---Begin {clientFactory.Settings.DataFormat}---");
+        string name = (string)inputs[0];
+        string nickname = (string)inputs[1];
         var words = assistant.Hello(new GreetingOptions { Name = name ?? string.Empty }, "Nice day");
         Console.WriteLine(words?.Result);
-        Console.Write("Nickname: ");
-        var nickname = Console.ReadLine();
         words = await assistant.HelloAsync(new GreetingOptions { Name = nickname ?? string.Empty }, "Good day");
         Console.WriteLine(words?.Result);
         await assistant.HelloAndForgetAsync(new GreetingOptions { Name = string.Empty }, "gday");
@@ -54,8 +63,6 @@ public static class Program
         {
             Console.WriteLine(asyncEx);
         }
-
-        Console.ReadLine();
-
+        Console.WriteLine($"---End {clientFactory.Settings.DataFormat}---");
     }
 }
