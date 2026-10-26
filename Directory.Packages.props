@@ -10,9 +10,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageVersion Include="BobDust.Core" Version="1.1.0" />
-        <PackageVersion Include="BobDust.Rpc.Sockets" Version="1.1.0" />
-        <PackageVersion Include="BobDust.Rpc.Sockets.Abstractions" Version="1.1.0" />
+        <PackageVersion Include="BobDust.Core" Version="1.1.1" />
+        <PackageVersion Include="BobDust.Rpc.Sockets" Version="1.1.1" />
+        <PackageVersion Include="BobDust.Rpc.Sockets.Abstractions" Version="1.1.1" />
         <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     </ItemGroup>
 </Project>
