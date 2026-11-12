@@ -1,8 +1,9 @@
 # BobDust.Rpc #
 
 * Quick summary: RPC socket library.
-* Version: 1.1.1.
+* Version: 1.2.0.
 * Dependencies:
+  * .NET 11
   * .NET 10
   * .NET 8
   * .NET 4.8
@@ -12,12 +13,12 @@
 Reference to nuget package
 
 ```shell
-dotnet add package BobDust.Rpc.Sockets --version 1.1.1
+dotnet add package BobDust.Rpc.Sockets --version 1.2.0
 ```
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="BobDust.Rpc.Sockets" Version="1.1.1" />
+  <PackageReference Include="BobDust.Rpc.Sockets" Version="1.2.0" />
 </ItemGroup>
 ```
 

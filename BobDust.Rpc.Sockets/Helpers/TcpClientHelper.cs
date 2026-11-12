@@ -3,9 +3,9 @@ using System.Net;
 public static class TcpClientHelper
 {
     public static bool AreSame(string thisHostOrIp, string thatHostOrIp)
-    {
-        return AreSameDestination(ResolveIpAddresses(thisHostOrIp), ResolveIpAddresses(thatHostOrIp));
-    }
+    => thisHostOrIp.Trim().Equals(thatHostOrIp.Trim(), StringComparison.OrdinalIgnoreCase) ||
+    AreSameDestination(ResolveIpAddresses(thisHostOrIp), ResolveIpAddresses(thatHostOrIp));
+
 
     public static async Task<bool> AreSameAsync(string thisHostOrIp, string thatHostOrIp)
     {
